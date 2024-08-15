@@ -1,0 +1,1087 @@
+---
+title: "**Survey weighting**"
+format: html
+theme: cosmo
+toc: true
+editor: visual
+author: Camilla Salvatore
+---
+
+# **Introduction**
+
+This material is part of the Utrecht [Summer School S16 - Survey Research: Statistical Analysis and Estimation](https://utrechtsummerschool.nl/courses/data-science/survey-research-statistical-analysis-and-estimation).
+
+In this practical session we learn how to adjust for nonresponse and coverage.
+
+The exercises are standalone: depending on your interest and the time you want to spend on every topic, you can skip exercises.
+
+# **Analysing nonresponse**
+
+GPS is the acronym for General Population Survey. It is the made up name of a Dutch survey carried out by Statistics Netherlands. The survey data file has been anonymized to prevent statistical disclosure problems. The response/nonresponse patterns in the file are real.
+
+The sample was selected by means of a stratified two-stage sample. In the first stage, municipalities were selected within regional strata with inclusion probabilities proportional to the number of inhabitants. In the second stage, an equal probability sample was drawn in each selected municipality. As a result the sample is self-weighting; all persons have the same inclusion probability. The sample size was 32,019.
+
+Objective of the survey is to estimate population means for a number of target variables. Like every survey, however, there was nonresponse. Fortunately, it was possible to link the survey data file to the Social Statistical Database (SSD) of Statistics Netherlands. Therefore the values of a set of auxiliary variables have become available for both respondents and nonrespondents. This information can be used to analyse the nonresponse and to adjust for potential nonresponse bias.
+
+You will find the survey data in the file gps.sav. The list of the available target variables and auxiliary variables (background variables) is given in the table below. The auxiliary variables are available for both respondents and nonrespondents. The target variables are only available for the respondents.
+
+| Variable | Description                             | Type of Variable |
+|:---------|:----------------------------------------|:-----------------|
+| Gender   | Gender                                  | Auxiliary        |
+| MarStat  | Marital status                          | Auxiliary        |
+| HasPC    | Owns a pc or laptop?                    | Target           |
+| OwnHouse | Owns a house?                           | Target           |
+| Urban    | Urbanization level of area of residence | Auxiliary        |
+| Age13    | Age in 13 categories                    | Auxiliary        |
+| Region   | Region of the country                   | Auxiliary        |
+| Phone    | Listed telephone?                       | Auxiliary        |
+| HouseVal | Average value of house at zip code      | Auxiliary        |
+| HasJob   | Has a job?                              | Auxiliary        |
+| Employed | Employment status in three categories   | Target           |
+| Married  | Married?                                | Auxiliary        |
+| HHSize   | Size of the household                   | Auxiliary        |
+| HHType   | Type of household                       | Auxiliary        |
+| Ethnic   | Ethnicity                               | Auxiliary        |
+| Respons1 | Response after one month?               | Paradata         |
+| Result   | Fieldwork result                        | Paradata         |
+| Response | Response after two months?              | Paradata         |
+| Contact  | Contact with sample unit?               | Paradata         |
+| Able     | Sample unit able to respond?            | Paradata         |
+
+To load the data into R, we can use the following code:
+
+```{r, message = FALSE, warning = FALSE}
+library(foreign)
+gps <- read.spss("gps.sav", to.data.frame = TRUE)
+```
+
+1.  **Compute the Response Rate**
+
+Calculate the response rate for the survey. Use the variable `Result` for this. The variable `Result` contains the percentage of people that fall in each response category: 1) "Unproc" = case is not handled by the interviewer and returned unprocessed, 2) "Response" = case responds, 3) "Non-contact" = no contact was established with case during data collection period, 4) "Refusal" = case refused participation, and 5) "Not-able" = case was not able to respond due to language or physical/mental condition.
+
+**Hint**: use `prop.table.`
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+prop.table(table(gps$Result))
+```
+
+The resulting response rate is RR1 in AAPOR definition. From the table, we can observe that the response rate is around 58.7%.
+:::
+
+2.  **Identify the variables that associate most with nonresponse**
+
+As the response rate is well below 100%, there is a risk of nonresponse bias. Nonresponse adjustment may be necessary. Before we can do such an adjustment, we first need to investigate the relationships between auxiliary variables and response, and between the auxiliary variables and the target variables of the survey. For this purpose, we employ so-called association measures. The correlation between two variables is the most well-known but cannot be applied to categorical variables. For categorical variables other measures exist such as Cramér's V. These measures usually take values between 0 and 1, where 0 indicates no association and 1 means full association.
+
+-   Build contingency tables of the response indicator versus each of the auxiliary variables. Perform chi-square tests for independence of response and each of the auxiliary variables. You can use `chisq.test(response,variable)`.
+
+What are the strongest candidates for nonresponse adjustment?
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r, results = FALSE}
+# for auxiliary variable gender
+table(gps$Response, gps$Gender)
+gendertest <- chisq.test(gps$Response, gps$Gender)
+gendertest
+# for auxiliary variable marstat
+table(gps$Response, gps$MarStat)
+martest <- chisq.test(gps$Response, gps$MarStat)
+martest
+# for auxiliary variable urban
+table(gps$Response, gps$Urban)
+urbantest <- chisq.test(gps$Response, gps$Urban)
+urbantest
+# for auxiliary variable age13
+table(gps$Response, gps$Age13)
+age13test <- chisq.test(gps$Response, gps$Age13)
+age13test
+# for auxiliary variable region
+table(gps$Response, gps$Region)
+regiontest <- chisq.test(gps$Response, gps$Region)
+regiontest
+# for auxiliary variable phone
+table(gps$Response, gps$Phone)
+phonetest <- chisq.test(gps$Response, gps$Phone)
+phonetest
+# for auxiliary variable houseval
+table(gps$Response, gps$HouseVal)
+housetest <- chisq.test(gps$Response, gps$HouseVal)
+housetest
+# for auxiliary variable hasjob
+table(gps$Response, gps$HasJob)
+jobtest <- chisq.test(gps$Response, gps$HasJob)
+jobtest
+# for auxiliary variable married
+table(gps$Response, gps$Married)
+marriedtest <- chisq.test(gps$Response, gps$Married)
+marriedtest
+# for auxiliary variable hhsize
+table(gps$Response, gps$HHSize)
+hhstest <- chisq.test(gps$Response, gps$HHSize)
+hhstest
+# for auxiliary variable hhtype
+table(gps$Response, gps$HHType)
+hhttest <- chisq.test(gps$Response, gps$HHType)
+hhttest
+# for auxiliary variable ethnic
+table(gps$Response, gps$Ethnic)
+ethnictest <- chisq.test(gps$Response, gps$Ethnic)
+ethnictest
+```
+
+An overview of all the obtained chi-square values with accompanying p-values can be found in the table below:
+
+| Variable | Chi-square | p-value |
+|:---------|:-----------|:--------|
+| region   | 852        | 0.00    |
+| Urban    | 747        | 0.00    |
+| phone    | 716        | 0.00    |
+| houseval | 427        | 0.00    |
+| ethnic   | 402        | 0.00    |
+| hhtype   | 358        | 0.00    |
+| hhsize   | 315        | 0.00    |
+| Marstat  | 302        | 0.00    |
+| married  | 298        | 0.00    |
+| Age13    | 119        | 0.00    |
+| hasjob   | 45         | 0.00    |
+| gender   | 4          | 0.04    |
+
+The p-values of all chi-square test are 0.0 except for gender. However, even for gender it is below 0.05. So, on the basis of these values all variables are candidates.
+:::
+
+However, in large datasets, the chi-square test does not discriminate enough between the different variables. Therefore, we also look at the Cramér's V.
+
+-   Compute the Cramér's V: What variables associate most with response?
+
+This association measure takes into account the different degrees of freedom of the variables (due to different number of categories) and the dimension of the dataset.
+
+::: callout-note
+## Cramér's V
+
+-   V = 0 indicates that the selected variable and the response indicator are completely independent
+
+-   V = 1 indicates the selected variable and the response indicator are completely dependent
+:::
+
+The variables can thus be sorted according to the value of Cramér's V and the strongest candidates can be selected. To calculate Cramér's V in R, we can use the `cramersv()` function. This function has to be applied to a `chisq.test()` object, that we have created before.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r, results = FALSE}
+library(confintr)
+cramersv(regiontest)
+cramersv(urbantest)
+cramersv(phonetest)
+cramersv(housetest)
+cramersv(ethnictest)
+cramersv(hhttest)
+cramersv(hhstest)
+cramersv(martest)
+cramersv(marriedtest)
+cramersv(age13test)
+cramersv(jobtest)
+cramersv(gendertest)
+```
+
+Now, we can extend the table with the chi-square values, with the Cramér's V values:
+
+| Variable | Chi-square | p-value | Cramér's V |
+|:---------|:-----------|:--------|:-----------|
+| region   | 852        | 0.00    | 0.16       |
+| Urban    | 747        | 0.00    | 0.15       |
+| phone    | 716        | 0.00    | 0.15       |
+| houseval | 427        | 0.00    | 0.12       |
+| ethnic   | 402        | 0.00    | 0.11       |
+| hhtype   | 358        | 0.00    | 0.11       |
+| hhsize   | 315        | 0.00    | 0.10       |
+| Marstat  | 302        | 0.00    | 0.10       |
+| married  | 298        | 0.00    | 0.10       |
+| Age13    | 119        | 0.00    | 0.06       |
+| hasjob   | 45         | 0.00    | 0.04       |
+| gender   | 4          | 0.04    | 0.01       |
+
+The strongest candidates for nonresponse adjustment based on the relationship with the response indicator are those variables that have the highest value for Cramér's V. If we restrict ourselves to four variables then these are *Region*, *Urban*, *Phone* and *HouseVal*. However, since these variables must be expected to be related, a multivariate analysis is needed.
+:::
+
+3.  **Compute the R-indicator using the variables identified in the previous point**
+
+The response rate is just one indicator of the quality of the response. We also need to look at the composition of the response. For this purpose we compute the R-indicator.
+
+::: callout-note
+## R-indicator
+
+The R-indicator can be calculated using the following expression:
+
+$$R(X) = 1 - 2 S(\rho (X))$$ With $S(\rho(X))$
+
+representing the standard deviation of the estimated response probabilities.
+:::
+
+-   Use the full sample (stored in object gps). First, you need to estimate the individual response probabilities. Include the auxiliary variables `Region`, `Urban`, `Phone`, `HouseVal`, `Ethnic` and `HHType`. These are the six variables with the highest Cramér's V value. Because the response indicator is a binary variable (either 0 or 1), we use a binary logistic regression model. The response indicator (`Response`) is the dependent variable, and the six auxiliary variables are entered in the model as explanatory variables.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+prob <- glm(Response ~ Region + Urban + Phone + HouseVal + Ethnic + HHType, 
+            family = binomial(), data = gps)
+
+```
+:::
+
+-   Add the estimated response probabilities to the data file by getting the predicted values from the object that was just created. To obtain this, we use the `predict()` function:
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+gps$resp_prob <- predict(prob, gps, type = "response")
+```
+:::
+
+-   Compute standard deviation of the estimated response probabilities. Use `sd(response probabilities)`
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+sd_p <- sd(gps$resp_prob)
+```
+:::
+
+-   Compute the R-indicator.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+1 - 2*sd_p
+```
+:::
+
+-   This is actually the R-indicator computed using the data after 2 months of data collection. Repeat the analysis using the data after 1 month of data collection (`Response1`). What are your conclusions?
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+prob1 <- glm(Respons1 ~ Region + Urban + Phone + HouseVal + Ethnic + HHType, 
+            family = binomial(), data = gps)
+gps$resp_prob1 <- predict(prob1, gps, type = "response")
+sd_p1 <- sd(gps$resp_prob1)
+1 - 2*sd_p1
+```
+
+The response is representative if the individual response propensities are equal for all units of the population. We see that the R-indicator is slightly higher after one month of data collection, when compared to the R-indicator after two months of data collection. This means that the response does not become more representative (representativeness decreases a little bit even) after an extra month of data collection. There seems little reason to perform the second month of data collection.
+:::
+
+# **Adjusting for Nonresponse**
+
+## **Propensity score weighting and stratification**
+
+### **Weighting: Creating tailored weights**
+
+In this exercise we are going to create tailored weights for a survey dataset. We will use the NHANES dataset, which is a survey dataset from the National Health and Nutrition Examination Survey.
+
+This example is adapted from the course [Creating Tailored Weights](https://www.understandingsociety.ac.uk/help/training/creating-tailored-weights/) held by Understanding Society. You can find their implementation in Stata [Here](https://www.youtube.com/watch?v=6C-l4QoF--A&ab_channel=UnderstandingSociety%3AUKHLS). Here we replicate this example in R.
+
+The variables that define the sampling design characteristics are:
+
+-   `sampl`: an ID variable
+-   `stratid`: a stratification variable
+-   `location`: a clustering variable
+-   `finalwgt`: a design weight
+
+The specific task is now, to create a tailored weight for the variable `hdresult`, which contains serum levels of high-density lipoproteins (HDL). However, only 8708 out of 10,337 entries are valid. We will adjust for this missingness through a tailored weight. We assume that all people are eligible to have a valid value for `hdresult` and that those who don't have the value are nonrespondents. To create these tailored weights, we will draw upon the base weight `finalwgt` and create a weight adjustment.
+
+We will use the following packages
+
+```{r message=FALSE, warning=FALSE}
+library(haven)
+library(tidyverse)
+library(survey)
+```
+
+**1. Loading the NHANES dataset**
+
+-   First, load the NHANES dataset into R. The dataset is available through [this](https://www.stata-press.com/data/r16/nhanes2f.dta) link in the dta format and can be loaded using the `haven` package. Then, familiarize yourself with the dataset.
+
+```{r}
+# Load the NHANES II dataset
+nhanes2 <- read_dta("https://www.stata-press.com/data/r16/nhanes2f.dta")
+```
+
+**2. Create a 0/1 indicator of response**
+
+To create a 0/1 indicator of response, where 0 is for nonrespondents and 1 is for respondents, use the `hdresult` variable. For simplicity treat missing values as non response.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Create a 0/1 indicator of response
+nhanes2 <- nhanes2 %>%
+  mutate(resp = ifelse(!is.na(hdresult), 1, 0))
+# if hdresult is not missing, set resp to 1, otherwise 0
+```
+:::
+
+**3. Predict the response using logistic regression**
+
+-   Select suitable predictors for the logistic regression model. Ensure that the predictors do not have missing values. If they do, impute them with a simple procedure, such as taking their average category or mean.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Display the summary of the predictors and check if they contain missing values
+summary(nhanes2 %>% select(sex, race, age, weight,
+                           bpsystol, region, health,
+                           heartatk, diabetes, sizplace))
+
+
+# Checking predictors and imputing missing values
+nhanes2 <- nhanes2 %>%
+  mutate(
+    health = ifelse(is.na(health), 3, health), # impute missing values with 3
+    heartatk = ifelse(is.na(heartatk), 0, heartatk), # impute missing values with 0
+    diabetes = ifelse(is.na(diabetes), 0, diabetes) # impute missing values with 0
+  )
+
+# Display the summary of the predictors again to confirm no missing values
+summary(nhanes2 %>% select(sex, race, age, weight, 
+                           bpsystol, region, health, 
+                           heartatk, diabetes, sizplace))
+```
+:::
+
+-   Using the variables you identified run a logistic regression model
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Logistic regression to predict response
+model <- glm(resp ~ factor(sex) + factor(race) +
+               age + weight + factor(region) +
+               factor(diabetes) + factor(sizplace), # predictors
+             data = nhanes2, # dataset
+             family = binomial()) # binomial family for logistic regression
+
+# Display the summary of the model
+summary(model)
+```
+:::
+
+-   Predict the response probabilities for the respondents
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Predict response probabilities for respondents
+nhanes2 <- nhanes2 %>%
+  mutate(prob1 = ifelse(resp == 1, 
+                        predict(model, type = "response"), 0))
+# predict response probability for respondents, set 0 for nonrespondents
+
+
+```
+:::
+
+**4. Create tailored weights**
+
+-   Create a weight variable `cwgt` that is the inverse of the predicted response probability for respondents.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Adjustment for the wave 1 base weight
+nhanes2 <- nhanes2 %>%
+  mutate(cwgt = ifelse(prob1 != 0, 1/prob1, 0)) 
+# if prob1 is not 0, set cwgt to 1/prob1, otherwise 0
+```
+:::
+
+-   Create the tailored weight `newweight` by multiplying the base weight `finalwgt` with the weight adjustment `cwgt`. Display the summary of the new weight.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Create the tailored weight
+nhanes2 <- nhanes2 %>%
+  mutate(newweight = finalwgt * cwgt) 
+# create the tailored weight by multiplying finalwgt with cwgt
+
+# Display summary of the new weight
+summary(nhanes2$newweight)
+```
+:::
+
+**5. Compare the old and new weights**
+
+-   Create the survey design objects for the old and new weights.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Old weight survey design
+design_old <- svydesign(id = ~location, 
+                        strata = ~stratid, 
+                        weights = ~finalwgt, 
+                        data = nhanes2)
+
+# New weight survey design
+design_new <- svydesign(id = ~location, 
+                        strata = ~stratid, 
+                        weights = ~newweight, 
+                        data = nhanes2)
+```
+:::
+
+-   What are the mean estimates of `hdresult` using the old and new weights?
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+# Mean estimate of hdresult using old weight
+mean_hdresult_old <- svymean(~hdresult, design = design_old, na.rm = TRUE)
+
+# Mean estimate of hdresult using new weight
+mean_hdresult_new <- svymean(~hdresult, design = design_new, na.rm = TRUE)
+```
+:::
+
+### **Propensity score stratification**
+
+In this exercise you will analyse data from the data from the 2003 National Health Interview Survey (NHIS) used to monitor health conditions in the US. A smaller version of the original dataset is available the `PracTools` package. It is named named `nhis` and it includes demographic variables only.
+
+-   `ID`: Identification variable
+-   `stratum`: Sample design stratum
+-   `psu`: Primary sampling unit
+-   `svywt`: Survey weight
+-   `sex`: Gender (1 = male; 2 = female)
+-   `age`: Age (continuous)
+-   `age_r`: Recoded age (3 = 18-24 years; 4 = 25-44 years; 5 = 45-64 years; 6 = 65-69 years; 7 = 70-74 years; 8 = 75 years and older)
+-   `hisp`: Hispanic ethnicity (1 = Hispanic; 2 = Non-Hispanic)
+-   `marital`: Marital status (1 = Separated; 2 = Divorced; 3 = Married; 4 = Single/never married; 5 = Widowed; 9 = Unknown marital status)
+-   `parents`: Parent(s) of sample person present in the family (1 = Mother, no father; 2 = Father, no mother; 3 = Mother and father; 4 = Neither mother nor father)
+-   `parents_r`: Parent(s) of sample person present in the family recode (1 = Yes; 2 = No)
+-   `educ`: Education (1 = 8th grade or less; 2 = 9-12th grade, no high school diploma; 3 = High school graduate; 4 = General education development (GED) degree recipient; 5 = Some college, no degree; 6 = Associate's degree, technical or vocational; 7 = Associate's degree, academic program; 8 = Bachelor's degree (BA, BS, AB, BBA); 9 = Master's, professional, or doctoral degree)
+-   `educ_r`: Education recode (1 = High school, general education development degree (GED), or less; 2 = Some college; 3 = Bachelor's or associate's degree; 4 = Master's degree & higher)
+-   `race`: Race (1 = White; 2 = Black; 3 = Other)
+-   `resp`: Respondent (0 = nonrespondent; 1 = respondent)
+
+1.  **Load the package using the following code**
+
+```{r message=FALSE, warning=FALSE}
+library(PracTools)
+data("nhis")
+```
+
+1.  **Fit unweighted logistic, probit and c-log-log models to the** `resp` **variable**
+
+-   Use the covariates `age`, `sex`, `hisp` and `race`
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r message=FALSE, warning=FALSE}
+logit=glm (resp ~ age + as.factor(sex) + as.factor(hisp) + as.factor(race),
+           family=binomial(link = "logit"),
+           data=nhis)
+
+probit=glm (resp ~ age + as.factor(sex) + as.factor(hisp) + as.factor(race),
+           family=binomial(link = "probit"),
+           data=nhis)
+
+cloglog=glm (resp ~ age + as.factor(sex) + as.factor(hisp) + as.factor(race),
+           family=binomial(link = "cloglog"),
+           data=nhis)
+```
+:::
+
+-   Which variables are significant predictors in each of the models?
+
+Look at the regression tables.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+We can look at the following table:
+```{r, results='asis',echo=F,align='center', message=FALSE,warning=FALSE}
+library(stargazer)
+stargazer(logit, probit, cloglog,header=FALSE, type='html',float=F)
+```
+
+All variables (including the intercept) are significant in all models, except for `sex`.
+:::
+
+-   Compare the predicted probabilities from the three models. You can make a table or a plot.
+Predicted probabilities are in `$fitted.values`
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r message=FALSE, warning=FALSE}
+library(kableExtra)
+pred.logit=logit$fitted.values
+pred.probit=probit$fitted.values
+pred.cloglog=cloglog$fitted.values
+```
+
+We can compare each predicted probabilities against the other:
+
+```{r message=FALSE, warning=FALSE}
+#This is in base R but you can use ggplot2
+par(mfrow = c(1, 3))
+plot(pred.logit,pred.probit,xlim=c(0.4,0.8),ylim=c(0.4,0.8))
+abline(0,1, col="blue",lwd=2)
+
+plot(pred.logit,pred.cloglog,xlim=c(0.4,0.8),ylim=c(0.4,0.8))
+abline(0,1, col="blue",lwd=2)
+
+plot(pred.probit,pred.cloglog,xlim=c(0.4,0.8),ylim=c(0.4,0.8))
+abline(0,1, col="blue",lwd=2)
+```
+
+We can make a summary table:
+
+```{r message=FALSE, warning=FALSE}
+summary(pred.logit) %>% 
+  bind_rows(summary(pred.probit)) %>% 
+  bind_rows(summary(pred.cloglog)) %>% 
+  add_column(model=c("logit","probit","cloglog"),.before=1) %>%
+  kable() %>% 
+  kable_styling(latex_options = "HOLD_position")
+```
+
+And some boxplots:
+
+```{r message=FALSE, warning=FALSE}
+boxplot(pred.logit,pred.probit,pred.cloglog,
+main="Boxplot of predicted probabilities",
+xlab="Model",
+ylab="Pred. Prob.",
+col="dodgerblue",
+border="black")
+axis(1,at=c(1,2,3),labels=c("logit","probit","cloglog"))
+```
+
+The three models produce very similar results. The logit and probit models are almost identical, while the cloglog model shows slight differences, particularly at the extreme low end of the predicted probabilities (as seen in the scatter plots and box plots). Analyzing the min-max values and quartiles leads to the same conclusion: the models are closely aligned overall.
+:::
+
+3.  **Use the predicted response probabilities from the logistic regression that used all covariates and create two versions of propensity classes:**
+
+-   Five classes with an equal number of respondents plus nonrespondents in each.
+Use `pclass` in order to make classes.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r, message=FALSE, warning=FALSE}
+p.class5 <- pclass(formula=resp ~ age + as.factor(sex) + as.factor(hisp) + as.factor(race),
+                  type="unwtd",data=nhis,link="logit", numcl=5)
+```
+:::
+
+-   Ten classes. Report the breaks used for the five and ten classes and the number of cases assigned to each class. (Check to see that all cases were assigned a non-missing class value. Use the parameter \`useNA="always"\` in table in order to see whether NAs were created.)
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r message=FALSE, warning=FALSE}
+p.class10 <- pclass(formula=resp ~ age + as.factor(sex) + as.factor(hisp) + as.factor(race),
+                  type="unwtd",data=nhis,link="logit", numcl=10)
+```
+:::
+
+4.  **How do the five and ten classes compare to each other?**
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r message=FALSE, warning=FALSE}
+table(p.class5$p.class,useNA="always") %>% 
+  kable(col.names = c("Boundaries","Count of persons")) %>% 
+  kable_styling(latex_options = "HOLD_position")
+
+table(p.class10$p.class,useNA="always") %>% 
+  kable(col.names = c("Boundaries","Count of persons")) %>% 
+  kable_styling(latex_options = "HOLD_position")
+```
+
+All cases have been assigned a non-missing class value, and the number of individuals is nearly as expected. The 10 classes also show greater homogeneity.
+:::
+
+5.  **How do the class adjustments compare to using the inverses of individual propensity estimates as adjustments?**
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+data5=data.frame(p.class5)
+
+ggplot(data5, aes(x=p.class, y=propensities)) +
+  geom_boxplot(alpha=0.7) +
+  stat_summary(fun.y=mean, geom="point", shape=20, size=4, color="red", fill="red") +
+  theme(legend.position="none") +
+  scale_fill_brewer(palette="Set1")+theme_bw()
+```
+
+```{r}
+data10=data.frame(p.class10)
+
+ggplot(data10, aes(x=p.class, y=propensities)) +
+  geom_boxplot(alpha=0.7) +
+  stat_summary(fun.y=mean, geom="point", shape=20, size=4, color="red", fill="red") +
+  theme(legend.position="none") +
+  scale_fill_brewer(palette="Set1")+theme_bw()
+```
+
+The box plots show that the first class (in both cases) is the most variable. After that, the range of propensities decreases. Using the mean (red) or the median helps to smooth out more extreme adjustments, which is especially beneficial for the first class. This highlights the advantage of using classes instead of raw propensity values.
+:::
+
+6.  **Which set of adjustment values would you recommend and why?**
+
+Think about it and discuss it in groups.
+
+#### **Extra exercises**
+
+If the ranges of estimated propensities in each class is small, you can use a single propensity value for each class. There are several options:
+
+**Calculate the five alternative values of NR weight adjustment shown in the box below.**
+
+For the weighted adjustments, use the `svywt` variable. Discuss how the five alternative values of adjustments compare within the two models with five and ten classes compare to each other
+
+::: callout-note
+## Five ways of estimating the class response propensity
+
+1.  **Unweighted average**: $\hat{\phi}_c = \frac{1}{n_c} \sum_{i \in s_c} \hat{\phi}(x_i)$ where $n_c$ is the unweighted number of cases in class c
+
+2.  **Weighted average**: \$\hat{\phi}*c =* \sum{i \in s_c}d_i\hat{\phi}(x_i) / \sum\_{i \in s_c}d_i \$ where $d_i$ is the base weight and the sum of $d_i$ is the estimated number of population units in class $c$
+
+3.  **Unweighted response rate**: $\hat{\phi}_c = n_{cR}/n_c$ where $n_{cR}$ is the unweighted number of respondents in class c
+
+4.  **Weighted response rate**: $\sum_{i \in s_{cR}}d_i/\sum_{i \in s_c}d_i$ where $n_c$ is the unweighted number of cases in class c
+
+5.  **Unweighted median**: $\hat{\phi}_c = median [\hat{\phi}(x_i)]_{i \in s_c}$ where $n_c$ is the unweighted number of cases in class c
+:::
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+We compute the results for the case with 5 an 10 class respectively.
+
+```{r}
+unw5=by(data=p.class5$propensities, p.class5$p.class, mean)
+
+weigh5=by(data=data.frame(preds=p.class5$propensities, wt=nhis[,"svywt"]),
+         p.class5$p.class, function(x) {weighted.mean(x$preds,x$wt)})
+
+unw.resp5=by(as.numeric(nhis[,"resp"]), p.class5$p.class, mean)
+
+weigh.resp5=by(data=data.frame(resp=as.numeric(nhis[,"resp"]),wt=nhis[,"svywt"]),
+              p.class5$p.class, function(x) {weighted.mean(x$resp,x$wt)})
+
+med5=by(p.class5$propensities, p.class5$p.class, median)
+
+```
+
+```{r}
+unw10=by(data=p.class10$propensities, p.class10$p.class, mean)
+
+weigh10=by(data=data.frame(preds=p.class10$propensities, wt=nhis[,"svywt"]),
+         p.class10$p.class, function(x) {weighted.mean(x$preds,x$wt)})
+
+unw.resp10=by(as.numeric(nhis[,"resp"]), p.class10$p.class, mean)
+
+weigh.resp10=by(data=data.frame(resp=as.numeric(nhis[,"resp"]),wt=nhis[,"svywt"]),
+              p.class10$p.class, function(x) {weighted.mean(x$resp,x$wt)})
+
+med10=by(p.class10$propensities, p.class10$p.class, median)
+```
+
+Then, we compare the results considering the following tables:
+
+```{r,echo=F}
+data.frame(c(unw5)) %>% bind_cols(
+  data.frame(c(weigh5))) %>% bind_cols(
+    data.frame(c(unw.resp5))) %>% bind_cols(
+      data.frame(c(weigh.resp5))) %>% bind_cols(
+        data.frame(c(med5))) %>%  
+  add_column(n = c(table(p.class5$p.class)),.before=1) %>%
+ kable(col.names = c("Count of persons","Unw. avg. prop.",
+                     "W. avg. prop.","Unw. RR","W. RR","Median"),digits=4) %>% kable_styling(latex_options = "HOLD_position")
+```
+
+```{r,echo=F}
+data.frame(c(unw10)) %>% bind_cols(
+  data.frame(c(weigh10))) %>% bind_cols(
+    data.frame(c(unw.resp10))) %>% bind_cols(
+      data.frame(c(weigh.resp10))) %>% bind_cols(
+        data.frame(c(med10))) %>%  
+  add_column(n = c(table(p.class10$p.class)),.before=1) %>%
+ kable(col.names = c("Count of persons","Unw. avg. prop.",
+                     "W. avg. prop.","Unw. RR","W. RR","Median"),digits=4) %>% kable_styling(latex_options = "HOLD_position")
+```
+
+Overall, for both 5 and 10 classes, we observe that values generally increase across classes, with all five methods producing similar results. The first and last classes show a wider range of values.
+
+When comparing the results between 5 and 10 classes, the range is narrower in the 10-class scenario. While using more classes can help reduce bias due to nonresponse, it may also lead to higher variances. Typically, 5 classes are recommended when the sample size is not large. In this case, opting for 5 classes seems appropriate.
+:::
+
+2.  **Check covariate balance according to D'Agostino method. Is balancing achieved? Discuss it.**
+
+::: callout-note
+## Checking Balance on Covariates - D'Agostino 1998
+
+The idea is simple: after classes are formed, you check if there is a difference in the covariate means. The covariate means should be different between classes but within a class the means of the covariates should be the same for respondents and nonrespondents. This is consistent with the idea that the response propensity is the same for all units withing a class.
+
+To check balance on covariates you need to:
+
+-   for quantitative x's: fit an ANOVA model, where `x = p.class + resp + p.class*resp`
+
+-   for dichtonomous x's: fit a logistic model, where `logit(x) = p.class + resp + p.class*resp`
+
+The coefficients on `resp` and the interaction `p.class*resp`shoud be nonsignificant.
+
+The coefficients on `p.class`should be nonzero and different from each other
+
+In addition you can also look at the covariate means table using `p.class*resp`
+:::
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+This is an example, you can proceed with all the covariates
+
+```{r}
+
+p.class <- p.class5$p.class
+
+
+#standard check
+chk1 <- glm(age ~ p.class + resp + p.class*resp, data = nhis)
+
+# An additional step is to fit a second model that only inlcudes p.class 
+# and test wether chk1 and chk2 are equivalent
+chk2 <- glm(age ~ p.class, data = nhis)
+
+summary(chk1)
+summary(chk2)
+anova(chk2, chk1, test="Chisq")
+#p-val non significant: balance is fine
+
+
+#For hispanic you need to recode the data.
+new.hisp <- abs(nhis$hisp-2)
+
+#standard check
+chk1 <- glm(new.hisp ~ p.class + resp + p.class*resp, family=binomial(link = "logit"), data = nhis)
+```
+:::
+
+::: callout-note
+## A numerical note
+
+When running a model to check balance on covariates, you might encounter anomalous results, such as extremely large estimates of standard errors. This could indicate "quasi-complete" separation in the dataset, where one or more observations have a predicted probability very close to 1. In such cases, a parameter estimate may diverge to infinity.
+
+While this poses a significant problem if your goal is to identify covariates associated with the occurrence of a particular characteristic, it does not affect the formation of propensity classes when checking covariate balance.
+:::
+
+::: {.callout-tip icon="false"}
+## Congratulations! 🎉
+
+You've successfully completed these exercises! By now, you should have a solid understanding of nonresponse.
+
+To keep building your skills, here are a few extra exercises:
+
+-   [**Tailored weights in longitudinal surveys**](https://www.youtube.com/watch?v=E5SjP5Dd2sI&t=2s): you can find a Stata tutorial by the UK Understanding Society survey
+
+-   **Check covariate balance**: Do the *extra exercise* in the propensity score stratification section
+
+-   **Apply what you've learned**: Try using these models on your own data
+:::
+
+# **Adjusting for Nonresponse and Coverage**
+
+In this exercise we use a larger version of the NHIS dataset that we used in the previous exercise. This dataset, named `nhis.large,` also contain some health-related variables. We want to estimate the number of persons covered by Medicaid, a type of US governamental assistance for medical care provided to the poor.
+
+We treat the large sample as reference population data. To the purpose of our exercise we also consider a probability sample which is extracted from the NHIS dataset but introducing coverage errors.
+
+Your objective is to perform different adjustment methods, namely, poststratification, raking and GREG calibration.
+
+1.  **Load the data**
+
+Load the `nhis.large` dataset and recode `hisp` into three categories (collapse category 4 and 3).
+
+```{r}
+data("nhis.large")
+nhis.large1 <- nhis.large %>% 
+  mutate(hisp.r = ifelse(hisp==4,3,hisp))
+    
+load("samdat.rda")
+```
+
+2.  **Define the sampling design of the sample**
+
+    This time specify the weights (N/n) and the finite population correction equal to the sampling fraction (n/N)
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+N <- nrow(nhis.large1)
+n <-nrow(samdat)
+d <- rep(N/n, n)
+f1 <- rep(n/N, n)
+
+nhis.dsgn <- svydesign(ids = ~0,    # no clusters 
+          strata = NULL,    # no strata
+          fpc = ~f1,
+          data = data.frame(samdat), 
+          weights = ~d)
+```
+:::
+
+### **Poststratification**
+
+1.  **Compute the population total in the poststrata defined by `age.grp` and `hisp.r`**
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+    ```{r}
+    N.PS <- xtabs(~ age.grp + hisp.r, data = nhis.large1)
+    ```
+:::
+
+2.  **Implement `postStratify` specifying `age.grp + hisp.r` in the strata argument.**
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+    ```{r}
+    ps.dsgn <- postStratify(design = nhis.dsgn,
+                                strata = ~age.grp + hisp.r,
+                                population = N.PS)
+    ```
+:::
+
+### **Raking**
+
+1.  **Compute the population total for the variable `age.grp` and `hisp.r`**
+
+    Give appropriate names that match variable names in the raking and GREG models.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+N.age <- table(nhis.large1[, "age.grp"])
+N.hisp <- table(nhis.large1[, "hisp.r"])
+
+pop.totals <- c('(Intercept)' = N, N.age[-1], N.hisp[-1])
+
+names(pop.totals)=c("(Intercept)","as.factor(age.grp)2",
+                    "as.factor(age.grp)3", "as.factor(age.grp)4",
+                    "as.factor(age.grp)5" ,"as.factor(hisp.r)2", 
+                    "as.factor(hisp.r)3")
+```
+:::
+
+2.  **Implement raking specifying `~ as.factor(age.grp) + as.factor(hisp.r)` in the `formula` argument.**
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+rake.dsgn <- calibrate(design = nhis.dsgn,
+                        formula = ~ as.factor(age.grp) + as.factor(hisp.r),
+                        calfun = "raking",
+                        population = pop.totals)
+```
+:::
+
+3.  **Verify that weights are calibrated for x's**
+
+    Compare the total for `age.grp` and `hisp.r` computed using `rake.dsgn` with the population totals `pop.totals`
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+svytotal(~as.factor(age.grp), rake.dsgn, na.rm=TRUE)
+svytotal(~as.factor(hisp.r), rake.dsgn, na.rm=TRUE)
+pop.totals
+```
+:::
+
+### **GREG**
+
+1.  **Implement GREG calibration specifying `~ as.factor(age.grp) + as.factor(hisp.r)` in the `formula` argument.**
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+greg.dsgn <- calibrate(design = nhis.dsgn,
+                        formula = ~ as.factor(age.grp) + as.factor(hisp.r),
+                        calfun = "linear",
+                        population = pop.totals)
+```
+:::
+
+2.  **Verify that weights are calibrated for x's**
+
+    Compare the total for `age.grp` and `hisp.r` computed using `greg.dsgn` with the population totals `pop.totals`
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+svytotal(~as.factor(age.grp), greg.dsgn, na.rm=TRUE)
+svytotal(~as.factor(hisp.r), greg.dsgn, na.rm=TRUE)
+pop.totals
+```
+:::
+
+### **Compare the three methods**
+
+Compute the total and the proportion of individuals covered by Medicaid (1=yes, 2=no) using:
+
+1.  the original sampling weights
+
+2.  the poststratification weights
+
+3.  the raking weights
+
+4.  the GREG weights
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+svytotal(~as.factor(medicaid), nhis.dsgn, na.rm=TRUE)
+svytotal(~as.factor(medicaid), ps.dsgn, na.rm=TRUE)
+svytotal(~as.factor(medicaid), rake.dsgn, na.rm=TRUE)
+svytotal(~as.factor(medicaid), greg.dsgn, na.rm=TRUE)
+
+svyciprop(~as.factor(medicaid)==1, nhis.dsgn, na.rm=TRUE)
+svyciprop(~as.factor(medicaid)==1, ps.dsgn, na.rm=TRUE)
+svyciprop(~as.factor(medicaid)==1, rake.dsgn, na.rm=TRUE)
+svyciprop(~as.factor(medicaid)==1, greg.dsgn, na.rm=TRUE)
+
+#true
+prop.table(table(nhis.large1[, "medicaid"]))
+```
+
+The results are quite similar.
+:::
+
+### **Extra exercises**
+
+::: callout-note
+## Poststratify vs GREG
+
+Note that applying poststratification with a single variable is equivalent to apply GREG.
+:::
+
+1.  **Apply poststratification and then GREG considering only `age.grp`.**
+
+    Remember to define population total (and names) again.
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+N.PS1 <- xtabs(~ age.grp, data = nhis.large1)
+N <- nrow(nhis.large1)
+N.age <- table(nhis.large1[, "age.grp"])
+
+
+pop.totals1 <- c('(Intercept)' = N, N.age[-1])
+names(pop.totals1)=c("(Intercept)","as.factor(age.grp)2",
+                    "as.factor(age.grp)3",
+                    "as.factor(age.grp)4",
+                    "as.factor(age.grp)5")
+
+ps.dsgn1 <- postStratify(design = nhis.dsgn,
+                            strata = ~age.grp,
+                            population = N.PS1)
+
+greg.dsgn1 <- calibrate(design = nhis.dsgn,
+                        formula = ~ as.factor(age.grp),
+                        calfun = "linear",
+                        population = pop.totals1)
+
+svytotal(~as.factor(medicaid), ps.dsgn1, na.rm=TRUE)
+svytotal(~as.factor(medicaid), greg.dsgn1, na.rm=TRUE)
+```
+:::
+
+2.  **Continue the GREG exercise and trim your weights to be between 30 and 65**
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r}
+greg.trim <- trimWeights(design = greg.dsgn,
+lower = 30,
+upper = 65,
+strict = TRUE)
+
+svytotal(~as.factor(medicaid), greg.dsgn, na.rm=TRUE)
+svytotal(~as.factor(medicaid), greg.trim, na.rm=TRUE)
+
+```
+:::
+
+3.  **Repeat the GREG calibration specifying that the final weights should be between 0.5 and 1.5 times the original weights. Does the calibration work or fail?**
+
+Hint: Use `bounds = c(0.5,1.5)`
+
+::: {.callout-caution collapse="true"}
+## Click here to show the solution
+
+```{r, eval=FALSE}
+greg.bound <- calibrate(design = nhis.dsgn,
+                        formula = ~ as.factor(age.grp) + as.factor(hisp.r),
+                        calfun = "linear",
+                        population = pop.totals,
+                        bounds = c(0.5,1.5))
+```
+
+The calibration algorithm fails.
+:::
+
+::: {.callout-tip icon="false"}
+## Congratulations! 🎉
+
+You've successfully completed these exercises! By now, you should have a solid understanding of survey weighting.
+
+To keep building your skills, here are a few extra suggesions:
+
+-   **Have a look at the extra exercises**: try out different bounds
+
+-   **Apply what you've learned**: Try using these models on your own data
+
+-   **The Election Challange**: Apply these methods in Day 4, to correct for selection bias
+:::
+
+## Acknowledgments
+
+Some of the exercises are adapted from:
+
+-   Valliant, R., Dever, J. A., & Kreuter, F. (2018). *Practical tools for designing and weighting survey samples* (Vol. 1). New York: Springer.
+
+-   [Creating Tailored Weights](https://www.understandingsociety.ac.uk/help/training/creating-tailored-weights/) - by Understanding Society
