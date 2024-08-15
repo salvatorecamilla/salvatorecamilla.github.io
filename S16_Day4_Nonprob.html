@@ -1202,7 +1202,7 @@ Click here to show the solution
 <span id="cb60-25"><a href="#cb60-25" aria-hidden="true" tabindex="-1"></a>  states_df<span class="sc">$</span>mrp_estimate[i] <span class="ot">&lt;-</span> <span class="fu">mean</span>(mrp_estimates_vector)</span>
 <span id="cb60-26"><a href="#cb60-26" aria-hidden="true" tabindex="-1"></a>  states_df<span class="sc">$</span>mrp_estimate_se[i] <span class="ot">&lt;-</span> <span class="fu">sd</span>(mrp_estimates_vector)</span>
 <span id="cb60-27"><a href="#cb60-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb60-28"><a href="#cb60-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Biased 5,000-sample survey unadjusted estimate</span></span>
+<span id="cb60-28"><a href="#cb60-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Biased sample survey unadjusted estimate</span></span>
 <span id="cb60-29"><a href="#cb60-29" aria-hidden="true" tabindex="-1"></a>  states_df<span class="sc">$</span>cces_estimate[i] <span class="ot">&lt;-</span></span>
 <span id="cb60-30"><a href="#cb60-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">filter</span>(cces_biased_df, state <span class="sc">==</span> states_df<span class="sc">$</span>state[i])<span class="sc">$</span>taxred)</span>
 <span id="cb60-31"><a href="#cb60-31" aria-hidden="true" tabindex="-1"></a>  states_df<span class="sc">$</span>n_sample[i] <span class="ot">&lt;-</span></span>
@@ -1210,7 +1210,7 @@ Click here to show the solution
 <span id="cb60-33"><a href="#cb60-33" aria-hidden="true" tabindex="-1"></a>  states_df<span class="sc">$</span>cces_estimate_se[i] <span class="ot">&lt;-</span></span>
 <span id="cb60-34"><a href="#cb60-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">get_se_bernoulli</span>(states_df<span class="sc">$</span>cces_estimate[i], states_df<span class="sc">$</span>n_sample[i])</span>
 <span id="cb60-35"><a href="#cb60-35" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb60-36"><a href="#cb60-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Full 60,000-person survey unadjusted estimate</span></span>
+<span id="cb60-36"><a href="#cb60-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Full PS sample survey unadjusted estimate</span></span>
 <span id="cb60-37"><a href="#cb60-37" aria-hidden="true" tabindex="-1"></a>  states_df<span class="sc">$</span>full_cces_estimate[i] <span class="ot">&lt;-</span></span>
 <span id="cb60-38"><a href="#cb60-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">filter</span>(cces_all_df, state <span class="sc">==</span> states_df<span class="sc">$</span>state[i])<span class="sc">$</span>taxred)</span>
 <span id="cb60-39"><a href="#cb60-39" aria-hidden="true" tabindex="-1"></a>  states_df<span class="sc">$</span>n_full[i] <span class="ot">&lt;-</span></span>
