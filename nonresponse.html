@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Camilla Salvatore">
+
+<title>Survey weighting</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="nonresponse_files/libs/clipboard/clipboard.min.js"></script>
+<script src="nonresponse_files/libs/quarto-html/quarto.js"></script>
+<script src="nonresponse_files/libs/quarto-html/popper.min.js"></script>
+<script src="nonresponse_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="nonresponse_files/libs/quarto-html/anchor.min.js"></script>
+<link href="nonresponse_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="nonresponse_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="nonresponse_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="nonresponse_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="nonresponse_files/libs/bootstrap/bootstrap-32162a2fca7cb0439643f2faaab1edf3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="nonresponse_files/libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="nonresponse_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><strong>Introduction</strong></a></li>
+  <li><a href="#adjusting-for-nonresponse" id="toc-adjusting-for-nonresponse" class="nav-link" data-scroll-target="#adjusting-for-nonresponse"><strong>Adjusting for Nonresponse</strong></a>
+  <ul class="collapse">
+  <li><a href="#propensity-score-weighting-and-stratification" id="toc-propensity-score-weighting-and-stratification" class="nav-link" data-scroll-target="#propensity-score-weighting-and-stratification"><strong>Propensity score weighting and stratification</strong></a>
+  <ul class="collapse">
+  <li><a href="#weighting-creating-tailored-weights" id="toc-weighting-creating-tailored-weights" class="nav-link" data-scroll-target="#weighting-creating-tailored-weights"><strong>Weighting: Creating tailored weights</strong></a></li>
+  <li><a href="#propensity-score-stratification" id="toc-propensity-score-stratification" class="nav-link" data-scroll-target="#propensity-score-stratification"><strong>Propensity score stratification</strong></a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><strong>Survey weighting</strong></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Camilla Salvatore </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1">
+<h1><strong>Introduction</strong></h1>
+</section>
+<section id="adjusting-for-nonresponse" class="level1">
+<h1><strong>Adjusting for Nonresponse</strong></h1>
+<section id="propensity-score-weighting-and-stratification" class="level2">
+<h2 class="anchored" data-anchor-id="propensity-score-weighting-and-stratification"><strong>Propensity score weighting and stratification</strong></h2>
+<section id="weighting-creating-tailored-weights" class="level3">
+<h3 class="anchored" data-anchor-id="weighting-creating-tailored-weights"><strong>Weighting: Creating tailored weights</strong></h3>
+<p>In this exercise we are going to create tailored weights for a survey dataset. We will use the NHANES dataset, which is a survey dataset from the National Health and Nutrition Examination Survey.</p>
+<p>This example is adapted from the course <a href="https://www.understandingsociety.ac.uk/help/training/creating-tailored-weights/">Creating Tailored Weights</a> held by Understanding Society. You can find their implementation in Stata <a href="https://www.youtube.com/watch?v=6C-l4QoF--A&amp;ab_channel=UnderstandingSociety%3AUKHLS">Here</a>. Here we replicate this example in R.</p>
+<p>The variables that define the sampling design characteristics are:</p>
+<ul>
+<li><code>sampl</code>: an ID variable</li>
+<li><code>stratid</code>: a stratification variable</li>
+<li><code>location</code>: a clustering variable</li>
+<li><code>finalwgt</code>: a design weight</li>
+</ul>
+<p>The specific task is now, to create a tailored weight for the variable <code>hdresult</code>, which contains serum levels of high-density lipoproteins (HDL). However, only 8708 out of 10,337 entries are valid. We will adjust for this missingness through a tailored weight. We assume that all people are eligible to have a valid value for <code>hdresult</code> and that those who don’t have the value are nonrespondents. To create these tailored weights, we will draw upon the base weight <code>finalwgt</code> and create a weight adjustment.</p>
+<p>We will use the following packages</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>1. Loading the NHANES dataset</strong></p>
+<ul>
+<li>First, load the NHANES dataset into R. The dataset is available through <a href="https://www.stata-press.com/data/r16/nhanes2f.dta">this</a> link in the dta format and can be loaded using the <code>haven</code> package. Then, familiarize yourself with the dataset.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the NHANES II dataset</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>nhanes2 <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"https://www.stata-press.com/data/r16/nhanes2f.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>2. Create a 0/1 indicator of response</strong></p>
+<p>To create a 0/1 indicator of response, where 0 is for nonrespondents and 1 is for respondents, use the <code>hdresult</code> variable. For simplicity treat missing values as non response.</p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a 0/1 indicator of response</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>nhanes2 <span class="ot">&lt;-</span> nhanes2 <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">resp =</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(hdresult), <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># if hdresult is not missing, set resp to 1, otherwise 0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>3. Predict the response using logistic regression</strong></p>
+<ul>
+<li>Select suitable predictors for the logistic regression model. Ensure that the predictors do not have missing values. If they do, impute them with a simple procedure, such as taking their average category or mean.</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the summary of the predictors and check if they contain missing values</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nhanes2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(sex, race, age, weight,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                           bpsystol, region, health,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                           heartatk, diabetes, sizplace))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      sex             race            age            weight      
+ Min.   :1.000   Min.   :1.000   Min.   :20.00   Min.   : 30.84  
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:31.00   1st Qu.: 60.67  
+ Median :2.000   Median :1.000   Median :49.00   Median : 70.42  
+ Mean   :1.525   Mean   :1.144   Mean   :47.56   Mean   : 71.90  
+ 3rd Qu.:2.000   3rd Qu.:1.000   3rd Qu.:63.00   3rd Qu.: 81.19  
+ Max.   :2.000   Max.   :3.000   Max.   :74.00   Max.   :175.88  
+                                                                 
+    bpsystol         region          health         heartatk      
+ Min.   : 65.0   Min.   :1.000   Min.   :1.000   Min.   :0.00000  
+ 1st Qu.:114.0   1st Qu.:2.000   1st Qu.:3.000   1st Qu.:0.00000  
+ Median :128.0   Median :3.000   Median :3.000   Median :0.00000  
+ Mean   :130.9   Mean   :2.582   Mean   :3.414   Mean   :0.04577  
+ 3rd Qu.:142.0   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:0.00000  
+ Max.   :300.0   Max.   :4.000   Max.   :5.000   Max.   :1.00000  
+                                 NA's   :2       NA's   :2        
+    diabetes          sizplace    
+ Min.   :0.00000   Min.   :1.000  
+ 1st Qu.:0.00000   1st Qu.:3.000  
+ Median :0.00000   Median :5.000  
+ Mean   :0.04828   Mean   :5.166  
+ 3rd Qu.:0.00000   3rd Qu.:8.000  
+ Max.   :1.00000   Max.   :8.000  
+ NA's   :2                        </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking predictors and imputing missing values</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>nhanes2 <span class="ot">&lt;-</span> nhanes2 <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">health =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(health), <span class="dv">3</span>, health), <span class="co"># impute missing values with 3</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">heartatk =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(heartatk), <span class="dv">0</span>, heartatk), <span class="co"># impute missing values with 0</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">diabetes =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(diabetes), <span class="dv">0</span>, diabetes) <span class="co"># impute missing values with 0</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the summary of the predictors again to confirm no missing values</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nhanes2 <span class="sc">%&gt;%</span> <span class="fu">select</span>(sex, race, age, weight, </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                           bpsystol, region, health, </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                           heartatk, diabetes, sizplace))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      sex             race            age            weight      
+ Min.   :1.000   Min.   :1.000   Min.   :20.00   Min.   : 30.84  
+ 1st Qu.:1.000   1st Qu.:1.000   1st Qu.:31.00   1st Qu.: 60.67  
+ Median :2.000   Median :1.000   Median :49.00   Median : 70.42  
+ Mean   :1.525   Mean   :1.144   Mean   :47.56   Mean   : 71.90  
+ 3rd Qu.:2.000   3rd Qu.:1.000   3rd Qu.:63.00   3rd Qu.: 81.19  
+ Max.   :2.000   Max.   :3.000   Max.   :74.00   Max.   :175.88  
+    bpsystol         region          health         heartatk      
+ Min.   : 65.0   Min.   :1.000   Min.   :1.000   Min.   :0.00000  
+ 1st Qu.:114.0   1st Qu.:2.000   1st Qu.:3.000   1st Qu.:0.00000  
+ Median :128.0   Median :3.000   Median :3.000   Median :0.00000  
+ Mean   :130.9   Mean   :2.582   Mean   :3.414   Mean   :0.04576  
+ 3rd Qu.:142.0   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:0.00000  
+ Max.   :300.0   Max.   :4.000   Max.   :5.000   Max.   :1.00000  
+    diabetes          sizplace    
+ Min.   :0.00000   Min.   :1.000  
+ 1st Qu.:0.00000   1st Qu.:3.000  
+ Median :0.00000   Median :5.000  
+ Mean   :0.04827   Mean   :5.166  
+ 3rd Qu.:0.00000   3rd Qu.:8.000  
+ Max.   :1.00000   Max.   :8.000  </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Using the variables you identified run a logistic regression model</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Logistic regression to predict response</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">glm</span>(resp <span class="sc">~</span> <span class="fu">factor</span>(sex) <span class="sc">+</span> <span class="fu">factor</span>(race) <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>               age <span class="sc">+</span> weight <span class="sc">+</span> <span class="fu">factor</span>(region) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>               <span class="fu">factor</span>(diabetes) <span class="sc">+</span> <span class="fu">factor</span>(sizplace), <span class="co"># predictors</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> nhanes2, <span class="co"># dataset</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">family =</span> <span class="fu">binomial</span>()) <span class="co"># binomial family for logistic regression</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the summary of the model</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = resp ~ factor(sex) + factor(race) + age + weight + 
+    factor(region) + factor(diabetes) + factor(sizplace), family = binomial(), 
+    data = nhanes2)
+
+Coefficients:
+                   Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)        3.038391   0.203450  14.934  &lt; 2e-16 ***
+factor(sex)2       0.133171   0.059871   2.224 0.026129 *  
+factor(race)2      0.233674   0.092552   2.525 0.011577 *  
+factor(race)3     -0.382336   0.183499  -2.084 0.037197 *  
+age               -0.008039   0.001684  -4.774 1.81e-06 ***
+weight            -0.008089   0.001926  -4.201 2.66e-05 ***
+factor(region)2   -0.200494   0.094796  -2.115 0.034428 *  
+factor(region)3   -0.928439   0.091653 -10.130  &lt; 2e-16 ***
+factor(region)4   -0.397968   0.093853  -4.240 2.23e-05 ***
+factor(diabetes)1 -0.517688   0.113408  -4.565 5.00e-06 ***
+factor(sizplace)2 -0.960051   0.113417  -8.465  &lt; 2e-16 ***
+factor(sizplace)3 -0.152250   0.120993  -1.258 0.208268    
+factor(sizplace)4  0.266558   0.139023   1.917 0.055192 .  
+factor(sizplace)5  0.454941   0.175049   2.599 0.009351 ** 
+factor(sizplace)6 -0.385489   0.145213  -2.655 0.007939 ** 
+factor(sizplace)7  0.693591   0.155897   4.449 8.63e-06 ***
+factor(sizplace)8  0.379206   0.110780   3.423 0.000619 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 9006.6  on 10336  degrees of freedom
+Residual deviance: 8425.9  on 10320  degrees of freedom
+AIC: 8459.9
+
+Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Predict the response probabilities for the respondents</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Predict response probabilities for respondents</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>nhanes2 <span class="ot">&lt;-</span> nhanes2 <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prob1 =</span> <span class="fu">ifelse</span>(resp <span class="sc">==</span> <span class="dv">1</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">predict</span>(model, <span class="at">type =</span> <span class="st">"response"</span>), <span class="dv">0</span>))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># predict response probability for respondents, set 0 for nonrespondents</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>4. Create tailored weights</strong></p>
+<ul>
+<li>Create a weight variable <code>cwgt</code> that is the inverse of the predicted response probability for respondents.</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjustment for the wave 1 base weight</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>nhanes2 <span class="ot">&lt;-</span> nhanes2 <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cwgt =</span> <span class="fu">ifelse</span>(prob1 <span class="sc">!=</span> <span class="dv">0</span>, <span class="dv">1</span><span class="sc">/</span>prob1, <span class="dv">0</span>)) </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># if prob1 is not 0, set cwgt to 1/prob1, otherwise 0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Create the tailored weight <code>newweight</code> by multiplying the base weight <code>finalwgt</code> with the weight adjustment <code>cwgt</code>. Display the summary of the new weight.</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the tailored weight</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>nhanes2 <span class="ot">&lt;-</span> nhanes2 <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">newweight =</span> finalwgt <span class="sc">*</span> cwgt) </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create the tailored weight by multiplying finalwgt with cwgt</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Display summary of the new weight</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nhanes2<span class="sc">$</span>newweight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      0    4437    9626   11303   15878   94397 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>5. Compare the old and new weights</strong></p>
+<ul>
+<li>Create the survey design objects for the old and new weights.</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Old weight survey design</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>design_old <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">id =</span> <span class="sc">~</span>location, </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">strata =</span> <span class="sc">~</span>stratid, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">weights =</span> <span class="sc">~</span>finalwgt, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> nhanes2)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># New weight survey design</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>design_new <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">id =</span> <span class="sc">~</span>location, </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">strata =</span> <span class="sc">~</span>stratid, </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                        <span class="at">weights =</span> <span class="sc">~</span>newweight, </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> nhanes2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>What are the mean estimates of <code>hdresult</code> using the old and new weights?</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean estimate of hdresult using old weight</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>mean_hdresult_old <span class="ot">&lt;-</span> <span class="fu">svymean</span>(<span class="sc">~</span>hdresult, <span class="at">design =</span> design_old, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean estimate of hdresult using new weight</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>mean_hdresult_new <span class="ot">&lt;-</span> <span class="fu">svymean</span>(<span class="sc">~</span>hdresult, <span class="at">design =</span> design_new, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="propensity-score-stratification" class="level3">
+<h3 class="anchored" data-anchor-id="propensity-score-stratification"><strong>Propensity score stratification</strong></h3>
+<p>In this exercise you will analyse data from the data from the 2003 National Health Interview Survey (NHIS) used to monitor health conditions in the US. A smaller version of the original dataset is available the <code>PracTools</code> package. It is named named <code>nhis</code> and it includes demographic variables only.</p>
+<ul>
+<li><code>ID</code>: Identification variable</li>
+<li><code>stratum</code>: Sample design stratum</li>
+<li><code>psu</code>: Primary sampling unit</li>
+<li><code>svywt</code>: Survey weight</li>
+<li><code>sex</code>: Gender (1 = male; 2 = female)</li>
+<li><code>age</code>: Age (continuous)</li>
+<li><code>age_r</code>: Recoded age (3 = 18-24 years; 4 = 25-44 years; 5 = 45-64 years; 6 = 65-69 years; 7 = 70-74 years; 8 = 75 years and older)</li>
+<li><code>hisp</code>: Hispanic ethnicity (1 = Hispanic; 2 = Non-Hispanic)</li>
+<li><code>marital</code>: Marital status (1 = Separated; 2 = Divorced; 3 = Married; 4 = Single/never married; 5 = Widowed; 9 = Unknown marital status)</li>
+<li><code>parents</code>: Parent(s) of sample person present in the family (1 = Mother, no father; 2 = Father, no mother; 3 = Mother and father; 4 = Neither mother nor father)</li>
+<li><code>parents_r</code>: Parent(s) of sample person present in the family recode (1 = Yes; 2 = No)</li>
+<li><code>educ</code>: Education (1 = 8th grade or less; 2 = 9-12th grade, no high school diploma; 3 = High school graduate; 4 = General education development (GED) degree recipient; 5 = Some college, no degree; 6 = Associate’s degree, technical or vocational; 7 = Associate’s degree, academic program; 8 = Bachelor’s degree (BA, BS, AB, BBA); 9 = Master’s, professional, or doctoral degree)</li>
+<li><code>educ_r</code>: Education recode (1 = High school, general education development degree (GED), or less; 2 = Some college; 3 = Bachelor’s or associate’s degree; 4 = Master’s degree &amp; higher)</li>
+<li><code>race</code>: Race (1 = White; 2 = Black; 3 = Other)</li>
+<li><code>resp</code>: Respondent (0 = nonrespondent; 1 = respondent)</li>
+</ul>
+<ol type="1">
+<li><strong>Load the package using the following code</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(PracTools)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nhis"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ol type="1">
+<li><strong>Fit unweighted logistic, probit and c-log-log models to the</strong> <code>resp</code> <strong>variable</strong></li>
+</ol>
+<ul>
+<li>Use the covariates <code>age</code>, <code>sex</code>, <code>hisp</code> and <code>race</code></li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>logit<span class="ot">=</span><span class="fu">glm</span> (resp <span class="sc">~</span> age <span class="sc">+</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp) <span class="sc">+</span> <span class="fu">as.factor</span>(race),</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">family=</span><span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">data=</span>nhis)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>probit<span class="ot">=</span><span class="fu">glm</span> (resp <span class="sc">~</span> age <span class="sc">+</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp) <span class="sc">+</span> <span class="fu">as.factor</span>(race),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">family=</span><span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"probit"</span>),</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">data=</span>nhis)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>cloglog<span class="ot">=</span><span class="fu">glm</span> (resp <span class="sc">~</span> age <span class="sc">+</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp) <span class="sc">+</span> <span class="fu">as.factor</span>(race),</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">family=</span><span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"cloglog"</span>),</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">data=</span>nhis)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Which variables are significant predictors in each of the models?</li>
+</ul>
+<p>Look at the regression tables.</p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We can look at the following table:</p>
+<div class="cell" data-align="center">
+<table style="text-align:center">
+<tbody><tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+resp
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em>logistic</em>
+</td>
+<td>
+<em>probit</em>
+</td>
+<td>
+<em>glm: binomial</em>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+<em></em>
+</td>
+<td>
+<em></em>
+</td>
+<td>
+<em>link = cloglog</em>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+<td>
+(3)
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+age
+</td>
+<td>
+-0.010<sup>***</sup>
+</td>
+<td>
+-0.006<sup>***</sup>
+</td>
+<td>
+-0.006<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.002)
+</td>
+<td>
+(0.001)
+</td>
+<td>
+(0.001)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+as.factor(sex)2
+</td>
+<td>
+-0.077
+</td>
+<td>
+-0.046
+</td>
+<td>
+-0.044
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.070)
+</td>
+<td>
+(0.042)
+</td>
+<td>
+(0.041)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+as.factor(hisp)2
+</td>
+<td>
+0.405<sup>***</sup>
+</td>
+<td>
+0.246<sup>***</sup>
+</td>
+<td>
+0.241<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.088)
+</td>
+<td>
+(0.054)
+</td>
+<td>
+(0.054)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+as.factor(race)2
+</td>
+<td>
+-0.212<sup>**</sup>
+</td>
+<td>
+-0.128<sup>**</sup>
+</td>
+<td>
+-0.124<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.098)
+</td>
+<td>
+(0.060)
+</td>
+<td>
+(0.059)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+as.factor(race)3
+</td>
+<td>
+-0.352<sup>**</sup>
+</td>
+<td>
+-0.216<sup>**</sup>
+</td>
+<td>
+-0.220<sup>**</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.160)
+</td>
+<td>
+(0.098)
+</td>
+<td>
+(0.100)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+1.015<sup>***</sup>
+</td>
+<td>
+0.622<sup>***</sup>
+</td>
+<td>
+0.272<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.114)
+</td>
+<td>
+(0.069)
+</td>
+<td>
+(0.068)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+3,911
+</td>
+<td>
+3,911
+</td>
+<td>
+3,911
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Log Likelihood
+</td>
+<td>
+-2,400.759
+</td>
+<td>
+-2,400.822
+</td>
+<td>
+-2,400.990
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Akaike Inf. Crit.
+</td>
+<td>
+4,813.519
+</td>
+<td>
+4,813.644
+</td>
+<td>
+4,813.980
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="3" style="text-align:right">
+<sup><em></em></sup><em>p&lt;0.1; <sup><strong></strong></sup><strong>p&lt;0.05; <sup></sup></strong></em>p&lt;0.01
+</td>
+</tr>
+</tbody></table>
+</div>
+<p>All variables (including the intercept) are significant in all models, except for <code>sex</code>.</p>
+</div>
+</div>
+</div>
+<ul>
+<li>Compare the predicted probabilities from the three models. You can make a table or a plot. Predicted probabilities are in <code>$fitted.values</code></li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>pred.logit<span class="ot">=</span>logit<span class="sc">$</span>fitted.values</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>pred.probit<span class="ot">=</span>probit<span class="sc">$</span>fitted.values</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>pred.cloglog<span class="ot">=</span>cloglog<span class="sc">$</span>fitted.values</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can compare each predicted probabilities against the other:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This is in base R but you can use ggplot2</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred.logit,pred.probit,<span class="at">xlim=</span><span class="fu">c</span>(<span class="fl">0.4</span>,<span class="fl">0.8</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="fl">0.4</span>,<span class="fl">0.8</span>))</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">col=</span><span class="st">"blue"</span>,<span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred.logit,pred.cloglog,<span class="at">xlim=</span><span class="fu">c</span>(<span class="fl">0.4</span>,<span class="fl">0.8</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="fl">0.4</span>,<span class="fl">0.8</span>))</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">col=</span><span class="st">"blue"</span>,<span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred.probit,pred.cloglog,<span class="at">xlim=</span><span class="fu">c</span>(<span class="fl">0.4</span>,<span class="fl">0.8</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="fl">0.4</span>,<span class="fl">0.8</span>))</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">col=</span><span class="st">"blue"</span>,<span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="nonresponse_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can make a summary table:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pred.logit) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(<span class="fu">summary</span>(pred.probit)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(<span class="fu">summary</span>(pred.cloglog)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">model=</span><span class="fu">c</span>(<span class="st">"logit"</span>,<span class="st">"probit"</span>,<span class="st">"cloglog"</span>),<span class="at">.before=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">latex_options =</span> <span class="st">"HOLD_position"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">model</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Min.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">1st Qu.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Median</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">3rd Qu.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Max.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">logit</td>
+<td style="text-align: right;">0.4769137</td>
+<td style="text-align: right;">0.6585878</td>
+<td style="text-align: right;">0.6924415</td>
+<td style="text-align: right;">0.6901048</td>
+<td style="text-align: right;">0.7260404</td>
+<td style="text-align: right;">0.7765047</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">probit</td>
+<td style="text-align: right;">0.4808753</td>
+<td style="text-align: right;">0.6584612</td>
+<td style="text-align: right;">0.6919716</td>
+<td style="text-align: right;">0.6900877</td>
+<td style="text-align: right;">0.7258562</td>
+<td style="text-align: right;">0.7773489</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cloglog</td>
+<td style="text-align: right;">0.4951173</td>
+<td style="text-align: right;">0.6585117</td>
+<td style="text-align: right;">0.6917511</td>
+<td style="text-align: right;">0.6900942</td>
+<td style="text-align: right;">0.7255815</td>
+<td style="text-align: right;">0.7791557</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>And some boxplots:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(pred.logit,pred.probit,pred.cloglog,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">main=</span><span class="st">"Boxplot of predicted probabilities"</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab=</span><span class="st">"Model"</span>,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab=</span><span class="st">"Pred. Prob."</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">col=</span><span class="st">"dodgerblue"</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">border=</span><span class="st">"black"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>,<span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),<span class="at">labels=</span><span class="fu">c</span>(<span class="st">"logit"</span>,<span class="st">"probit"</span>,<span class="st">"cloglog"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="nonresponse_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The three models produce very similar results. The logit and probit models are almost identical, while the cloglog model shows slight differences, particularly at the extreme low end of the predicted probabilities (as seen in the scatter plots and box plots). Analyzing the min-max values and quartiles leads to the same conclusion: the models are closely aligned overall.</p>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>Use the predicted response probabilities from the logistic regression that used all covariates and create two versions of propensity classes:</strong></li>
+</ol>
+<ul>
+<li>Five classes with an equal number of respondents plus nonrespondents in each. Use <code>pclass</code> in order to make classes.</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>p.class5 <span class="ot">&lt;-</span> <span class="fu">pclass</span>(<span class="at">formula=</span>resp <span class="sc">~</span> age <span class="sc">+</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp) <span class="sc">+</span> <span class="fu">as.factor</span>(race),</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">type=</span><span class="st">"unwtd"</span>,<span class="at">data=</span>nhis,<span class="at">link=</span><span class="st">"logit"</span>, <span class="at">numcl=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li>Ten classes. Report the breaks used for the five and ten classes and the number of cases assigned to each class. (Check to see that all cases were assigned a non-missing class value. Use the parameter `useNA=“always”` in table in order to see whether NAs were created.)</li>
+</ul>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>p.class10 <span class="ot">&lt;-</span> <span class="fu">pclass</span>(<span class="at">formula=</span>resp <span class="sc">~</span> age <span class="sc">+</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp) <span class="sc">+</span> <span class="fu">as.factor</span>(race),</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">type=</span><span class="st">"unwtd"</span>,<span class="at">data=</span>nhis,<span class="at">link=</span><span class="st">"logit"</span>, <span class="at">numcl=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ol start="4" type="1">
+<li><strong>How do the five and ten classes compare to each other?</strong></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(p.class5<span class="sc">$</span>p.class,<span class="at">useNA=</span><span class="st">"always"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Boundaries"</span>,<span class="st">"Count of persons"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">latex_options =</span> <span class="st">"HOLD_position"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Boundaries</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Count of persons</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">[0.477,0.651]</td>
+<td style="text-align: right;">783</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.651,0.68]</td>
+<td style="text-align: right;">782</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.68,0.706]</td>
+<td style="text-align: right;">782</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.706,0.734]</td>
+<td style="text-align: right;">782</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.734,0.777]</td>
+<td style="text-align: right;">782</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(p.class10<span class="sc">$</span>p.class,<span class="at">useNA=</span><span class="st">"always"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Boundaries"</span>,<span class="st">"Count of persons"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">latex_options =</span> <span class="st">"HOLD_position"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Boundaries</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Count of persons</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">[0.477,0.629]</td>
+<td style="text-align: right;">392</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.629,0.651]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.651,0.665]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.665,0.68]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.68,0.692]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.692,0.706]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.706,0.72]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.72,0.734]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.734,0.75]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.75,0.777]</td>
+<td style="text-align: right;">391</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>All cases have been assigned a non-missing class value, and the number of individuals is nearly as expected. The 10 classes also show greater homogeneity.</p>
+</div>
+</div>
+</div>
+<ol start="5" type="1">
+<li><strong>How do the class adjustments compare to using the inverses of individual propensity estimates as adjustments?</strong></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-15-contents" aria-controls="callout-15" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-15" class="callout-15-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>data5<span class="ot">=</span><span class="fu">data.frame</span>(p.class5)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data5, <span class="fu">aes</span>(<span class="at">x=</span>p.class, <span class="at">y=</span>propensities)) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">alpha=</span><span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y=</span>mean, <span class="at">geom=</span><span class="st">"point"</span>, <span class="at">shape=</span><span class="dv">20</span>, <span class="at">size=</span><span class="dv">4</span>, <span class="at">color=</span><span class="st">"red"</span>, <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">"Set1"</span>)<span class="sc">+</span><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `fun.y` argument of `stat_summary()` is deprecated as of ggplot2 3.3.0.
+ℹ Please use the `fun` argument instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="nonresponse_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>data10<span class="ot">=</span><span class="fu">data.frame</span>(p.class10)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data10, <span class="fu">aes</span>(<span class="at">x=</span>p.class, <span class="at">y=</span>propensities)) <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">alpha=</span><span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.y=</span>mean, <span class="at">geom=</span><span class="st">"point"</span>, <span class="at">shape=</span><span class="dv">20</span>, <span class="at">size=</span><span class="dv">4</span>, <span class="at">color=</span><span class="st">"red"</span>, <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">"Set1"</span>)<span class="sc">+</span><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="nonresponse_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The box plots show that the first class (in both cases) is the most variable. After that, the range of propensities decreases. Using the mean (red) or the median helps to smooth out more extreme adjustments, which is especially beneficial for the first class. This highlights the advantage of using classes instead of raw propensity values.</p>
+</div>
+</div>
+</div>
+<ol start="6" type="1">
+<li><strong>Which set of adjustment values would you recommend and why?</strong></li>
+</ol>
+<p>Think about it and discuss it in groups.</p>
+<section id="extra-exercises" class="level4">
+<h4 class="anchored" data-anchor-id="extra-exercises"><strong>Extra exercises</strong></h4>
+<p>If the ranges of estimated propensities in each class is small, you can use a single propensity value for each class. There are several options:</p>
+<p><strong>Calculate the five alternative values of NR weight adjustment shown in the box below.</strong></p>
+<p>For the weighted adjustments, use the <code>svywt</code> variable. Discuss how the five alternative values of adjustments compare within the two models with five and ten classes compare to each other</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Five ways of estimating the class response propensity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><p><strong>Unweighted average</strong>: <span class="math inline">\(\hat{\phi}_c = \frac{1}{n_c} \sum_{i \in s_c} \hat{\phi}(x_i)\)</span> where <span class="math inline">\(n_c\)</span> is the unweighted number of cases in class c</p></li>
+<li><p><strong>Weighted average</strong>: <span class="math inline">\(\hat{\phi}_c = \frac{\sum_{i \in s_c}d_i\hat{\phi}(x_i)}{\sum_{i \in s_c}d_i}\)</span> where <span class="math inline">\(d_i\)</span> is the base weight and the sum of <span class="math inline">\(d_i\)</span> is the estimated number of population units in class <span class="math inline">\(c\)</span></p></li>
+<li><p><strong>Unweighted response rate</strong>: <span class="math inline">\(\hat{\phi}_c = n_{cR}/n_c\)</span> where <span class="math inline">\(n_{cR}\)</span> is the unweighted number of respondents in class c</p></li>
+<li><p><strong>Weighted response rate</strong>: <span class="math inline">\(\sum_{i \in s_{cR}}d_i/\sum_{i \in s_c}d_i\)</span> where <span class="math inline">\(n_c\)</span> is the unweighted number of cases in class c</p></li>
+<li><p><strong>Unweighted median</strong>: <span class="math inline">\(\hat{\phi}_c = median [\hat{\phi}(x_i)]_{i \in s_c}\)</span> where <span class="math inline">\(n_c\)</span> is the unweighted number of cases in class c</p></li>
+</ol>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-17" class="callout-17-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We compute the results for the case with 5 an 10 class respectively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>unw5<span class="ot">=</span><span class="fu">by</span>(<span class="at">data=</span>p.class5<span class="sc">$</span>propensities, p.class5<span class="sc">$</span>p.class, mean)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>weigh5<span class="ot">=</span><span class="fu">by</span>(<span class="at">data=</span><span class="fu">data.frame</span>(<span class="at">preds=</span>p.class5<span class="sc">$</span>propensities, <span class="at">wt=</span>nhis[,<span class="st">"svywt"</span>]),</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>          p.class5<span class="sc">$</span>p.class, <span class="cf">function</span>(x) {<span class="fu">weighted.mean</span>(x<span class="sc">$</span>preds,x<span class="sc">$</span>wt)})</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>unw.resp5<span class="ot">=</span><span class="fu">by</span>(<span class="fu">as.numeric</span>(nhis[,<span class="st">"resp"</span>]), p.class5<span class="sc">$</span>p.class, mean)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>weigh.resp5<span class="ot">=</span><span class="fu">by</span>(<span class="at">data=</span><span class="fu">data.frame</span>(<span class="at">resp=</span><span class="fu">as.numeric</span>(nhis[,<span class="st">"resp"</span>]),<span class="at">wt=</span>nhis[,<span class="st">"svywt"</span>]),</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>               p.class5<span class="sc">$</span>p.class, <span class="cf">function</span>(x) {<span class="fu">weighted.mean</span>(x<span class="sc">$</span>resp,x<span class="sc">$</span>wt)})</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>med5<span class="ot">=</span><span class="fu">by</span>(p.class5<span class="sc">$</span>propensities, p.class5<span class="sc">$</span>p.class, median)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>unw10<span class="ot">=</span><span class="fu">by</span>(<span class="at">data=</span>p.class10<span class="sc">$</span>propensities, p.class10<span class="sc">$</span>p.class, mean)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>weigh10<span class="ot">=</span><span class="fu">by</span>(<span class="at">data=</span><span class="fu">data.frame</span>(<span class="at">preds=</span>p.class10<span class="sc">$</span>propensities, <span class="at">wt=</span>nhis[,<span class="st">"svywt"</span>]),</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>           p.class10<span class="sc">$</span>p.class, <span class="cf">function</span>(x) {<span class="fu">weighted.mean</span>(x<span class="sc">$</span>preds,x<span class="sc">$</span>wt)})</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>unw.resp10<span class="ot">=</span><span class="fu">by</span>(<span class="fu">as.numeric</span>(nhis[,<span class="st">"resp"</span>]), p.class10<span class="sc">$</span>p.class, mean)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>weigh.resp10<span class="ot">=</span><span class="fu">by</span>(<span class="at">data=</span><span class="fu">data.frame</span>(<span class="at">resp=</span><span class="fu">as.numeric</span>(nhis[,<span class="st">"resp"</span>]),<span class="at">wt=</span>nhis[,<span class="st">"svywt"</span>]),</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>                p.class10<span class="sc">$</span>p.class, <span class="cf">function</span>(x) {<span class="fu">weighted.mean</span>(x<span class="sc">$</span>resp,x<span class="sc">$</span>wt)})</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>med10<span class="ot">=</span><span class="fu">by</span>(p.class10<span class="sc">$</span>propensities, p.class10<span class="sc">$</span>p.class, median)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then, we compare the results considering the following tables:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Count of persons</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Unw. avg. prop.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">W. avg. prop.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Unw. RR</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">W. RR</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Median</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">[0.477,0.651]</td>
+<td style="text-align: right;">783</td>
+<td style="text-align: right;">0.6211</td>
+<td style="text-align: right;">0.6237</td>
+<td style="text-align: right;">0.6271</td>
+<td style="text-align: right;">0.6463</td>
+<td style="text-align: right;">0.6294</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.651,0.68]</td>
+<td style="text-align: right;">782</td>
+<td style="text-align: right;">0.6656</td>
+<td style="text-align: right;">0.6656</td>
+<td style="text-align: right;">0.6650</td>
+<td style="text-align: right;">0.6665</td>
+<td style="text-align: right;">0.6651</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.68,0.706]</td>
+<td style="text-align: right;">782</td>
+<td style="text-align: right;">0.6930</td>
+<td style="text-align: right;">0.6933</td>
+<td style="text-align: right;">0.6739</td>
+<td style="text-align: right;">0.6859</td>
+<td style="text-align: right;">0.6929</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.706,0.734]</td>
+<td style="text-align: right;">782</td>
+<td style="text-align: right;">0.7195</td>
+<td style="text-align: right;">0.7196</td>
+<td style="text-align: right;">0.7366</td>
+<td style="text-align: right;">0.7348</td>
+<td style="text-align: right;">0.7201</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.734,0.777]</td>
+<td style="text-align: right;">782</td>
+<td style="text-align: right;">0.7514</td>
+<td style="text-align: right;">0.7521</td>
+<td style="text-align: right;">0.7481</td>
+<td style="text-align: right;">0.7624</td>
+<td style="text-align: right;">0.7503</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Count of persons</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Unw. avg. prop.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">W. avg. prop.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Unw. RR</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">W. RR</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Median</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">[0.477,0.629]</td>
+<td style="text-align: right;">392</td>
+<td style="text-align: right;">0.6008</td>
+<td style="text-align: right;">0.6026</td>
+<td style="text-align: right;">0.5765</td>
+<td style="text-align: right;">0.5915</td>
+<td style="text-align: right;">0.6090</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.629,0.651]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.6415</td>
+<td style="text-align: right;">0.6416</td>
+<td style="text-align: right;">0.6777</td>
+<td style="text-align: right;">0.6930</td>
+<td style="text-align: right;">0.6430</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.651,0.665]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.6586</td>
+<td style="text-align: right;">0.6585</td>
+<td style="text-align: right;">0.6547</td>
+<td style="text-align: right;">0.6575</td>
+<td style="text-align: right;">0.6586</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.665,0.68]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.6727</td>
+<td style="text-align: right;">0.6727</td>
+<td style="text-align: right;">0.6752</td>
+<td style="text-align: right;">0.6754</td>
+<td style="text-align: right;">0.6731</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.68,0.692]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.6861</td>
+<td style="text-align: right;">0.6862</td>
+<td style="text-align: right;">0.6854</td>
+<td style="text-align: right;">0.6894</td>
+<td style="text-align: right;">0.6860</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.692,0.706]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.6999</td>
+<td style="text-align: right;">0.7001</td>
+<td style="text-align: right;">0.6624</td>
+<td style="text-align: right;">0.6821</td>
+<td style="text-align: right;">0.7002</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.706,0.72]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.7131</td>
+<td style="text-align: right;">0.7131</td>
+<td style="text-align: right;">0.7212</td>
+<td style="text-align: right;">0.7151</td>
+<td style="text-align: right;">0.7126</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.72,0.734]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.7259</td>
+<td style="text-align: right;">0.7260</td>
+<td style="text-align: right;">0.7519</td>
+<td style="text-align: right;">0.7541</td>
+<td style="text-align: right;">0.7260</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0.734,0.75]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.7408</td>
+<td style="text-align: right;">0.7408</td>
+<td style="text-align: right;">0.7621</td>
+<td style="text-align: right;">0.7724</td>
+<td style="text-align: right;">0.7411</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(0.75,0.777]</td>
+<td style="text-align: right;">391</td>
+<td style="text-align: right;">0.7619</td>
+<td style="text-align: right;">0.7622</td>
+<td style="text-align: right;">0.7340</td>
+<td style="text-align: right;">0.7534</td>
+<td style="text-align: right;">0.7610</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>Overall, for both 5 and 10 classes, we observe that values generally increase across classes, with all five methods producing similar results. The first and last classes show a wider range of values.</p>
+<p>When comparing the results between 5 and 10 classes, the range is narrower in the 10-class scenario. While using more classes can help reduce bias due to nonresponse, it may also lead to higher variances. Typically, 5 classes are recommended when the sample size is not large. In this case, opting for 5 classes seems appropriate.</p>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>Check covariate balance according to D’Agostino method. Is balancing achieved? Discuss it.</strong></li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Checking Balance on Covariates - D’Agostino 1998
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The idea is simple: after classes are formed, you check if there is a difference in the covariate means. The covariate means should be different between classes but within a class the means of the covariates should be the same for respondents and nonrespondents. This is consistent with the idea that the response propensity is the same for all units withing a class.</p>
+<p>To check balance on covariates you need to:</p>
+<ul>
+<li><p>for quantitative x’s: fit an ANOVA model, where <code>x = p.class + resp + p.class*resp</code></p></li>
+<li><p>for dichtonomous x’s: fit a logistic model, where <code>logit(x) = p.class + resp + p.class*resp</code></p></li>
+</ul>
+<p>The coefficients on <code>resp</code> and the interaction <code>p.class*resp</code>shoud be nonsignificant.</p>
+<p>The coefficients on <code>p.class</code>should be nonzero and different from each other</p>
+<p>In addition you can also look at the covariate means table using <code>p.class*resp</code></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This is an example, you can proceed with all the covariates</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>p.class <span class="ot">&lt;-</span> p.class5<span class="sc">$</span>p.class</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co">#standard check</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>chk1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(age <span class="sc">~</span> p.class <span class="sc">+</span> resp <span class="sc">+</span> p.class<span class="sc">*</span>resp, <span class="at">data =</span> nhis)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co"># An additional step is to fit a second model that only inlcudes p.class </span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co"># and test wether chk1 and chk2 are equivalent</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>chk2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(age <span class="sc">~</span> p.class, <span class="at">data =</span> nhis)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(chk1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = age ~ p.class + resp + p.class * resp, data = nhis)
+
+Coefficients:
+                          Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                60.5000     0.8266  73.195  &lt; 2e-16 ***
+p.class(0.651,0.68]        -8.4885     1.2019  -7.062 1.93e-12 ***
+p.class(0.68,0.706]       -15.9824     1.2106 -13.202  &lt; 2e-16 ***
+p.class(0.706,0.734]      -19.8350     1.2852 -15.434  &lt; 2e-16 ***
+p.class(0.734,0.777]      -32.4594     1.3023 -24.925  &lt; 2e-16 ***
+resp                       -1.6242     1.0438  -1.556   0.1198    
+p.class(0.651,0.68]:resp   -1.2084     1.4949  -0.808   0.4189    
+p.class(0.68,0.706]:resp    3.6777     1.5001   2.452   0.0143 *  
+p.class(0.706,0.734]:resp   2.5564     1.5506   1.649   0.0993 .  
+p.class(0.734,0.777]:resp   2.3272     1.5631   1.489   0.1366    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for gaussian family taken to be 199.4961)
+
+    Null deviance: 1188013  on 3910  degrees of freedom
+Residual deviance:  778234  on 3901  degrees of freedom
+AIC: 31823
+
+Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(chk2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = age ~ p.class, data = nhis)
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           59.4815     0.5053  117.70   &lt;2e-16 ***
+p.class(0.651,0.68]   -9.3536     0.7149  -13.08   &lt;2e-16 ***
+p.class(0.68,0.706]  -13.5799     0.7149  -19.00   &lt;2e-16 ***
+p.class(0.706,0.734] -18.1298     0.7149  -25.36   &lt;2e-16 ***
+p.class(0.734,0.777] -30.9150     0.7149  -43.24   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for gaussian family taken to be 199.9602)
+
+    Null deviance: 1188013  on 3910  degrees of freedom
+Residual deviance:  781044  on 3906  degrees of freedom
+AIC: 31827
+
+Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(chk2, chk1, <span class="at">test=</span><span class="st">"Chisq"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table
+
+Model 1: age ~ p.class
+Model 2: age ~ p.class + resp + p.class * resp
+  Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)  
+1      3906     781044                       
+2      3901     778234  5   2810.3  0.01507 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">#p-val non significant: balance is fine</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co">#For hispanic you need to recode the data.</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>new.hisp <span class="ot">&lt;-</span> <span class="fu">abs</span>(nhis<span class="sc">$</span>hisp<span class="dv">-2</span>)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co">#standard check</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>chk1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(new.hisp <span class="sc">~</span> p.class <span class="sc">+</span> resp <span class="sc">+</span> p.class<span class="sc">*</span>resp, <span class="at">family=</span><span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>), <span class="at">data =</span> nhis)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+A numerical note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When running a model to check balance on covariates, you might encounter anomalous results, such as extremely large estimates of standard errors. This could indicate “quasi-complete” separation in the dataset, where one or more observations have a predicted probability very close to 1. In such cases, a parameter estimate may diverge to infinity.</p>
+<p>While this poses a significant problem if your goal is to identify covariates associated with the occurrence of a particular characteristic, it does not affect the formation of propensity classes when checking covariate balance.</p>
+</div>
+</div>
+<p>## Acknowledgments</p>
+<p>Some of the exercises are adapted from:</p>
+<ul>
+<li><p>Valliant, R., Dever, J. A., &amp; Kreuter, F. (2018). <em>Practical tools for designing and weighting survey samples</em> (Vol. 1). New York: Springer.</p></li>
+<li><p><a href="https://www.understandingsociety.ac.uk/help/training/creating-tailored-weights/">Creating Tailored Weights</a> - by Understanding Society</p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
