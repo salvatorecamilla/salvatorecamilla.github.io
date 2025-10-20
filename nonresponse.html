@@ -122,6 +122,15 @@ window.Quarto = {
   <li><a href="#propensity-score-stratification" id="toc-propensity-score-stratification" class="nav-link" data-scroll-target="#propensity-score-stratification"><strong>Propensity score stratification</strong></a></li>
   </ul></li>
   </ul></li>
+  <li><a href="#adjusting-for-nonresponse-and-coverage" id="toc-adjusting-for-nonresponse-and-coverage" class="nav-link" data-scroll-target="#adjusting-for-nonresponse-and-coverage"><strong>Adjusting for Nonresponse and Coverage</strong></a>
+  <ul class="collapse">
+  <li><a href="#poststratification" id="toc-poststratification" class="nav-link" data-scroll-target="#poststratification"><strong>Poststratification</strong></a></li>
+  <li><a href="#raking" id="toc-raking" class="nav-link" data-scroll-target="#raking"><strong>Raking</strong></a></li>
+  <li><a href="#greg" id="toc-greg" class="nav-link" data-scroll-target="#greg"><strong>GREG</strong></a></li>
+  <li><a href="#compare-the-three-methods" id="toc-compare-the-three-methods" class="nav-link" data-scroll-target="#compare-the-three-methods"><strong>Compare the three methods</strong></a></li>
+  <li><a href="#extra-exercises-1" id="toc-extra-exercises-1" class="nav-link" data-scroll-target="#extra-exercises-1"><strong>Extra exercises</strong></a></li>
+  <li><a href="#acknowledgments" id="toc-acknowledgments" class="nav-link" data-scroll-target="#acknowledgments">Acknowledgments</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -1371,8 +1380,8 @@ Click here to show the solution
 <td style="text-align: right;">782</td>
 <td style="text-align: right;">0.6656</td>
 <td style="text-align: right;">0.6656</td>
-<td style="text-align: right;">0.6650</td>
-<td style="text-align: right;">0.6665</td>
+<td style="text-align: right;">0.6662</td>
+<td style="text-align: right;">0.6677</td>
 <td style="text-align: right;">0.6651</td>
 </tr>
 <tr class="odd">
@@ -1389,8 +1398,8 @@ Click here to show the solution
 <td style="text-align: right;">782</td>
 <td style="text-align: right;">0.7195</td>
 <td style="text-align: right;">0.7196</td>
-<td style="text-align: right;">0.7366</td>
-<td style="text-align: right;">0.7348</td>
+<td style="text-align: right;">0.7353</td>
+<td style="text-align: right;">0.7338</td>
 <td style="text-align: right;">0.7201</td>
 </tr>
 <tr class="odd">
@@ -1399,7 +1408,7 @@ Click here to show the solution
 <td style="text-align: right;">0.7514</td>
 <td style="text-align: right;">0.7521</td>
 <td style="text-align: right;">0.7481</td>
-<td style="text-align: right;">0.7624</td>
+<td style="text-align: right;">0.7623</td>
 <td style="text-align: right;">0.7503</td>
 </tr>
 </tbody>
@@ -1447,7 +1456,7 @@ Click here to show the solution
 <td style="text-align: right;">0.6586</td>
 <td style="text-align: right;">0.6585</td>
 <td style="text-align: right;">0.6547</td>
-<td style="text-align: right;">0.6575</td>
+<td style="text-align: right;">0.6577</td>
 <td style="text-align: right;">0.6586</td>
 </tr>
 <tr class="even">
@@ -1455,8 +1464,8 @@ Click here to show the solution
 <td style="text-align: right;">391</td>
 <td style="text-align: right;">0.6727</td>
 <td style="text-align: right;">0.6727</td>
-<td style="text-align: right;">0.6752</td>
-<td style="text-align: right;">0.6754</td>
+<td style="text-align: right;">0.6803</td>
+<td style="text-align: right;">0.6820</td>
 <td style="text-align: right;">0.6731</td>
 </tr>
 <tr class="odd">
@@ -1464,17 +1473,17 @@ Click here to show the solution
 <td style="text-align: right;">391</td>
 <td style="text-align: right;">0.6861</td>
 <td style="text-align: right;">0.6862</td>
-<td style="text-align: right;">0.6854</td>
-<td style="text-align: right;">0.6894</td>
+<td style="text-align: right;">0.6803</td>
+<td style="text-align: right;">0.6833</td>
 <td style="text-align: right;">0.6860</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">(0.692,0.706]</td>
 <td style="text-align: right;">391</td>
 <td style="text-align: right;">0.6999</td>
-<td style="text-align: right;">0.7001</td>
-<td style="text-align: right;">0.6624</td>
-<td style="text-align: right;">0.6821</td>
+<td style="text-align: right;">0.7000</td>
+<td style="text-align: right;">0.6650</td>
+<td style="text-align: right;">0.6857</td>
 <td style="text-align: right;">0.7002</td>
 </tr>
 <tr class="odd">
@@ -1482,8 +1491,8 @@ Click here to show the solution
 <td style="text-align: right;">391</td>
 <td style="text-align: right;">0.7131</td>
 <td style="text-align: right;">0.7131</td>
-<td style="text-align: right;">0.7212</td>
-<td style="text-align: right;">0.7151</td>
+<td style="text-align: right;">0.7161</td>
+<td style="text-align: right;">0.7092</td>
 <td style="text-align: right;">0.7126</td>
 </tr>
 <tr class="even">
@@ -1491,17 +1500,17 @@ Click here to show the solution
 <td style="text-align: right;">391</td>
 <td style="text-align: right;">0.7259</td>
 <td style="text-align: right;">0.7260</td>
-<td style="text-align: right;">0.7519</td>
-<td style="text-align: right;">0.7541</td>
+<td style="text-align: right;">0.7545</td>
+<td style="text-align: right;">0.7562</td>
 <td style="text-align: right;">0.7260</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">(0.734,0.75]</td>
 <td style="text-align: right;">391</td>
 <td style="text-align: right;">0.7408</td>
-<td style="text-align: right;">0.7408</td>
-<td style="text-align: right;">0.7621</td>
-<td style="text-align: right;">0.7724</td>
+<td style="text-align: right;">0.7407</td>
+<td style="text-align: right;">0.7596</td>
+<td style="text-align: right;">0.7710</td>
 <td style="text-align: right;">0.7411</td>
 </tr>
 <tr class="even">
@@ -1509,8 +1518,8 @@ Click here to show the solution
 <td style="text-align: right;">391</td>
 <td style="text-align: right;">0.7619</td>
 <td style="text-align: right;">0.7622</td>
-<td style="text-align: right;">0.7340</td>
-<td style="text-align: right;">0.7534</td>
+<td style="text-align: right;">0.7366</td>
+<td style="text-align: right;">0.7551</td>
 <td style="text-align: right;">0.7610</td>
 </tr>
 </tbody>
@@ -1580,23 +1589,23 @@ glm(formula = age ~ p.class + resp + p.class * resp, data = nhis)
 
 Coefficients:
                           Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                60.5000     0.8266  73.195  &lt; 2e-16 ***
-p.class(0.651,0.68]        -8.4885     1.2019  -7.062 1.93e-12 ***
-p.class(0.68,0.706]       -15.9824     1.2106 -13.202  &lt; 2e-16 ***
-p.class(0.706,0.734]      -19.8350     1.2852 -15.434  &lt; 2e-16 ***
-p.class(0.734,0.777]      -32.4594     1.3023 -24.925  &lt; 2e-16 ***
-resp                       -1.6242     1.0438  -1.556   0.1198    
-p.class(0.651,0.68]:resp   -1.2084     1.4949  -0.808   0.4189    
-p.class(0.68,0.706]:resp    3.6777     1.5001   2.452   0.0143 *  
-p.class(0.706,0.734]:resp   2.5564     1.5506   1.649   0.0993 .  
-p.class(0.734,0.777]:resp   2.3272     1.5631   1.489   0.1366    
+(Intercept)                60.5000     0.8266  73.189  &lt; 2e-16 ***
+p.class(0.651,0.68]        -8.5230     1.2032  -7.083 1.66e-12 ***
+p.class(0.68,0.706]       -15.9314     1.2107 -13.159  &lt; 2e-16 ***
+p.class(0.706,0.734]      -19.7995     1.2834 -15.427  &lt; 2e-16 ***
+p.class(0.734,0.777]      -32.4594     1.3024 -24.923  &lt; 2e-16 ***
+resp                       -1.6242     1.0439  -1.556   0.1198    
+p.class(0.651,0.68]:resp   -1.1512     1.4957  -0.770   0.4415    
+p.class(0.68,0.706]:resp    3.6021     1.5003   2.401   0.0164 *  
+p.class(0.706,0.734]:resp   2.5098     1.5494   1.620   0.1053    
+p.class(0.734,0.777]:resp   2.3272     1.5632   1.489   0.1366    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-(Dispersion parameter for gaussian family taken to be 199.4961)
+(Dispersion parameter for gaussian family taken to be 199.5277)
 
     Null deviance: 1188013  on 3910  degrees of freedom
-Residual deviance:  778234  on 3901  degrees of freedom
+Residual deviance:  778357  on 3901  degrees of freedom
 AIC: 31823
 
 Number of Fisher Scoring iterations: 2</code></pre>
@@ -1633,7 +1642,7 @@ Model 1: age ~ p.class
 Model 2: age ~ p.class + resp + p.class * resp
   Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)  
 1      3906     781044                       
-2      3901     778234  5   2810.3  0.01507 *
+2      3901     778357  5     2687  0.01937 *
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -1663,14 +1672,533 @@ A numerical note
 <p>While this poses a significant problem if your goal is to identify covariates associated with the occurrence of a particular characteristic, it does not affect the formation of propensity classes when checking covariate balance.</p>
 </div>
 </div>
-<p>## Acknowledgments</p>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Congratulations! 🎉
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You’ve successfully completed these exercises! By now, you should have a solid understanding of nonresponse.</p>
+<p>To keep building your skills, here are a few extra exercises:</p>
+<ul>
+<li><p><a href="https://www.youtube.com/watch?v=E5SjP5Dd2sI&amp;t=2s"><strong>Tailored weights in longitudinal surveys</strong></a>: you can find a Stata tutorial by the UK Understanding Society survey</p></li>
+<li><p><strong>Check covariate balance</strong>: Do the <em>extra exercise</em> in the propensity score stratification section</p></li>
+<li><p><strong>Apply what you’ve learned</strong>: Try using these models on your own data</p></li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+<section id="adjusting-for-nonresponse-and-coverage" class="level1">
+<h1><strong>Adjusting for Nonresponse and Coverage</strong></h1>
+<p>In this exercise we use a larger version of the NHIS dataset that we used in the previous exercise. This dataset, named <code>nhis.large,</code> also contain some health-related variables. We want to estimate the number of persons covered by Medicaid, a type of US governamental assistance for medical care provided to the poor.</p>
+<p>We treat the large sample as reference population data. To the purpose of our exercise we also consider a probability sample which is extracted from the NHIS dataset but introducing coverage errors.</p>
+<p>Your objective is to perform different adjustment methods, namely, poststratification, raking and GREG calibration.</p>
+<ol type="1">
+<li><strong>Load the data</strong></li>
+</ol>
+<p>Load the <code>nhis.large</code> dataset and recode <code>hisp</code> into three categories (collapse category 4 and 3).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nhis.large"</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>nhis.large1 <span class="ot">&lt;-</span> nhis.large <span class="sc">%&gt;%</span> </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hisp.r =</span> <span class="fu">ifelse</span>(hisp<span class="sc">==</span><span class="dv">4</span>,<span class="dv">3</span>,hisp))</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"samdat.rda"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ol start="2" type="1">
+<li><p><strong>Define the sampling design of the sample</strong></p>
+<p>This time specify the weights (N/n) and the finite population correction equal to the sampling fraction (n/N)</p></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-22-contents" aria-controls="callout-22" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-22" class="callout-22-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(nhis.large1)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span><span class="fu">nrow</span>(samdat)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">rep</span>(N<span class="sc">/</span>n, n)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>f1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(n<span class="sc">/</span>N, n)</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>nhis.dsgn <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span><span class="dv">0</span>,    <span class="co"># no clusters </span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">strata =</span> <span class="cn">NULL</span>,    <span class="co"># no strata</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">fpc =</span> <span class="sc">~</span>f1,</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> <span class="fu">data.frame</span>(samdat), </span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">weights =</span> <span class="sc">~</span>d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<section id="poststratification" class="level3">
+<h3 class="anchored" data-anchor-id="poststratification"><strong>Poststratification</strong></h3>
+<ol type="1">
+<li><strong>Compute the population total in the poststrata defined by <code>age.grp</code> and <code>hisp.r</code></strong></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-23-contents" aria-controls="callout-23" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-23" class="callout-23-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>    N.PS <span class="ot">&lt;-</span> <span class="fu">xtabs</span>(<span class="sc">~</span> age.grp <span class="sc">+</span> hisp.r, <span class="at">data =</span> nhis.large1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>Implement <code>postStratify</code> specifying <code>age.grp + hisp.r</code> in the strata argument.</strong></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-24-contents" aria-controls="callout-24" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-24" class="callout-24-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>    ps.dsgn <span class="ot">&lt;-</span> <span class="fu">postStratify</span>(<span class="at">design =</span> nhis.dsgn,</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">strata =</span> <span class="sc">~</span>age.grp <span class="sc">+</span> hisp.r,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">population =</span> N.PS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="raking" class="level3">
+<h3 class="anchored" data-anchor-id="raking"><strong>Raking</strong></h3>
+<ol type="1">
+<li><p><strong>Compute the population total for the variable <code>age.grp</code> and <code>hisp.r</code></strong></p>
+<p>Give appropriate names that match variable names in the raking and GREG models.</p></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-25-contents" aria-controls="callout-25" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-25" class="callout-25-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>N.age <span class="ot">&lt;-</span> <span class="fu">table</span>(nhis.large1[, <span class="st">"age.grp"</span>])</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>N.hisp <span class="ot">&lt;-</span> <span class="fu">table</span>(nhis.large1[, <span class="st">"hisp.r"</span>])</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>pop.totals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'(Intercept)'</span> <span class="ot">=</span> N, N.age[<span class="sc">-</span><span class="dv">1</span>], N.hisp[<span class="sc">-</span><span class="dv">1</span>])</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pop.totals)<span class="ot">=</span><span class="fu">c</span>(<span class="st">"(Intercept)"</span>,<span class="st">"as.factor(age.grp)2"</span>,</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"as.factor(age.grp)3"</span>, <span class="st">"as.factor(age.grp)4"</span>,</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"as.factor(age.grp)5"</span> ,<span class="st">"as.factor(hisp.r)2"</span>, </span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"as.factor(hisp.r)3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>Implement raking specifying <code>~ as.factor(age.grp) + as.factor(hisp.r)</code> in the <code>formula</code> argument.</strong></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-26-contents" aria-controls="callout-26" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-26" class="callout-26-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>rake.dsgn <span class="ot">&lt;-</span> <span class="fu">calibrate</span>(<span class="at">design =</span> nhis.dsgn,</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">formula =</span> <span class="sc">~</span> <span class="fu">as.factor</span>(age.grp) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp.r),</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">calfun =</span> <span class="st">"raking"</span>,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">population =</span> pop.totals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><p><strong>Verify that weights are calibrated for x’s</strong></p>
+<p>Compare the total for <code>age.grp</code> and <code>hisp.r</code> computed using <code>rake.dsgn</code> with the population totals <code>pop.totals</code></p></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-27-contents" aria-controls="callout-27" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-27" class="callout-27-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(age.grp), rake.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    total SE
+as.factor(age.grp)1  5991  0
+as.factor(age.grp)2  2014  0
+as.factor(age.grp)3  6124  0
+as.factor(age.grp)4  5011  0
+as.factor(age.grp)5  2448  0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(hisp.r), rake.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   total SE
+as.factor(hisp.r)1  5031  0
+as.factor(hisp.r)2 12637  0
+as.factor(hisp.r)3  3920  0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>pop.totals</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        (Intercept) as.factor(age.grp)2 as.factor(age.grp)3 as.factor(age.grp)4 
+              21588                2014                6124                5011 
+as.factor(age.grp)5  as.factor(hisp.r)2  as.factor(hisp.r)3 
+               2448               12637                3920 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="greg" class="level3">
+<h3 class="anchored" data-anchor-id="greg"><strong>GREG</strong></h3>
+<ol type="1">
+<li><strong>Implement GREG calibration specifying <code>~ as.factor(age.grp) + as.factor(hisp.r)</code> in the <code>formula</code> argument.</strong></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-28-contents" aria-controls="callout-28" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-28" class="callout-28-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>greg.dsgn <span class="ot">&lt;-</span> <span class="fu">calibrate</span>(<span class="at">design =</span> nhis.dsgn,</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">formula =</span> <span class="sc">~</span> <span class="fu">as.factor</span>(age.grp) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp.r),</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">calfun =</span> <span class="st">"linear"</span>,</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">population =</span> pop.totals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><p><strong>Verify that weights are calibrated for x’s</strong></p>
+<p>Compare the total for <code>age.grp</code> and <code>hisp.r</code> computed using <code>greg.dsgn</code> with the population totals <code>pop.totals</code></p></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-29-contents" aria-controls="callout-29" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-29" class="callout-29-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(age.grp), greg.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    total SE
+as.factor(age.grp)1  5991  0
+as.factor(age.grp)2  2014  0
+as.factor(age.grp)3  6124  0
+as.factor(age.grp)4  5011  0
+as.factor(age.grp)5  2448  0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(hisp.r), greg.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   total SE
+as.factor(hisp.r)1  5031  0
+as.factor(hisp.r)2 12637  0
+as.factor(hisp.r)3  3920  0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>pop.totals</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        (Intercept) as.factor(age.grp)2 as.factor(age.grp)3 as.factor(age.grp)4 
+              21588                2014                6124                5011 
+as.factor(age.grp)5  as.factor(hisp.r)2  as.factor(hisp.r)3 
+               2448               12637                3920 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="compare-the-three-methods" class="level3">
+<h3 class="anchored" data-anchor-id="compare-the-three-methods"><strong>Compare the three methods</strong></h3>
+<p>Compute the total and the proportion of individuals covered by Medicaid (1=yes, 2=no) using:</p>
+<ol type="1">
+<li><p>the original sampling weights</p></li>
+<li><p>the poststratification weights</p></li>
+<li><p>the raking weights</p></li>
+<li><p>the GREG weights</p></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-30-contents" aria-controls="callout-30" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-30" class="callout-30-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), nhis.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  1823.8 250.18
+as.factor(medicaid)2 17190.2 272.46</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), ps.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  2492.1 317.07
+as.factor(medicaid)2 18638.1 334.06</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), rake.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  2555.9 330.66
+as.factor(medicaid)2 18516.9 351.43</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), greg.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  2534.3 327.89
+as.factor(medicaid)2 18539.7 349.04</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svyciprop</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid)<span class="sc">==</span><span class="dv">1</span>, nhis.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                  2.5%  97.5%
+as.factor(medicaid) == 1 0.0959 0.0730 0.1250</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svyciprop</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid)<span class="sc">==</span><span class="dv">1</span>, ps.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                  2.5%  97.5%
+as.factor(medicaid) == 1 0.1179 0.0916 0.1506</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svyciprop</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid)<span class="sc">==</span><span class="dv">1</span>, rake.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                  2.5%  97.5%
+as.factor(medicaid) == 1 0.1213 0.0938 0.1555</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svyciprop</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid)<span class="sc">==</span><span class="dv">1</span>, greg.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                2.5% 97.5%
+as.factor(medicaid) == 1 0.120 0.093 0.154</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co">#true</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(<span class="fu">table</span>(nhis.large1[, <span class="st">"medicaid"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+        1         2 
+0.1071194 0.8928806 </code></pre>
+</div>
+</div>
+<p>The results are quite similar.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="extra-exercises-1" class="level3">
+<h3 class="anchored" data-anchor-id="extra-exercises-1"><strong>Extra exercises</strong></h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Poststratify vs GREG
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note that applying poststratification with a single variable is equivalent to apply GREG.</p>
+</div>
+</div>
+<ol type="1">
+<li><p><strong>Apply poststratification and then GREG considering only <code>age.grp</code>.</strong></p>
+<p>Remember to define population total (and names) again.</p></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-32-contents" aria-controls="callout-32" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-32" class="callout-32-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>N.PS1 <span class="ot">&lt;-</span> <span class="fu">xtabs</span>(<span class="sc">~</span> age.grp, <span class="at">data =</span> nhis.large1)</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(nhis.large1)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>N.age <span class="ot">&lt;-</span> <span class="fu">table</span>(nhis.large1[, <span class="st">"age.grp"</span>])</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>pop.totals1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'(Intercept)'</span> <span class="ot">=</span> N, N.age[<span class="sc">-</span><span class="dv">1</span>])</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pop.totals1)<span class="ot">=</span><span class="fu">c</span>(<span class="st">"(Intercept)"</span>,<span class="st">"as.factor(age.grp)2"</span>,</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"as.factor(age.grp)3"</span>,</span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"as.factor(age.grp)4"</span>,</span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"as.factor(age.grp)5"</span>)</span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>ps.dsgn1 <span class="ot">&lt;-</span> <span class="fu">postStratify</span>(<span class="at">design =</span> nhis.dsgn,</span>
+<span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">strata =</span> <span class="sc">~</span>age.grp,</span>
+<span id="cb75-14"><a href="#cb75-14" aria-hidden="true" tabindex="-1"></a>                            <span class="at">population =</span> N.PS1)</span>
+<span id="cb75-15"><a href="#cb75-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-16"><a href="#cb75-16" aria-hidden="true" tabindex="-1"></a>greg.dsgn1 <span class="ot">&lt;-</span> <span class="fu">calibrate</span>(<span class="at">design =</span> nhis.dsgn,</span>
+<span id="cb75-17"><a href="#cb75-17" aria-hidden="true" tabindex="-1"></a>                        <span class="at">formula =</span> <span class="sc">~</span> <span class="fu">as.factor</span>(age.grp),</span>
+<span id="cb75-18"><a href="#cb75-18" aria-hidden="true" tabindex="-1"></a>                        <span class="at">calfun =</span> <span class="st">"linear"</span>,</span>
+<span id="cb75-19"><a href="#cb75-19" aria-hidden="true" tabindex="-1"></a>                        <span class="at">population =</span> pop.totals1)</span>
+<span id="cb75-20"><a href="#cb75-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-21"><a href="#cb75-21" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), ps.dsgn1, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  2211.4 292.27
+as.factor(medicaid)2 18919.9 315.91</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), greg.dsgn1, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  2211.4 292.27
+as.factor(medicaid)2 18919.9 315.91</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>Continue the GREG exercise and trim your weights to be between 30 and 65</strong></li>
+</ol>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-33-contents" aria-controls="callout-33" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-33" class="callout-33-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>greg.trim <span class="ot">&lt;-</span> <span class="fu">trimWeights</span>(<span class="at">design =</span> greg.dsgn,</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a><span class="at">lower =</span> <span class="dv">30</span>,</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a><span class="at">upper =</span> <span class="dv">65</span>,</span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a><span class="at">strict =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), greg.dsgn, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  2534.3 327.89
+as.factor(medicaid)2 18539.7 349.04</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="sc">~</span><span class="fu">as.factor</span>(medicaid), greg.trim, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       total     SE
+as.factor(medicaid)1  2502.3 323.26
+as.factor(medicaid)2 18569.2 345.89</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>Repeat the GREG calibration specifying that the final weights should be between 0.5 and 1.5 times the original weights. Does the calibration work or fail?</strong></li>
+</ol>
+<p>Hint: Use <code>bounds = c(0.5,1.5)</code></p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-34-contents" aria-controls="callout-34" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Click here to show the solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-34" class="callout-34-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>greg.bound <span class="ot">&lt;-</span> <span class="fu">calibrate</span>(<span class="at">design =</span> nhis.dsgn,</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">formula =</span> <span class="sc">~</span> <span class="fu">as.factor</span>(age.grp) <span class="sc">+</span> <span class="fu">as.factor</span>(hisp.r),</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">calfun =</span> <span class="st">"linear"</span>,</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">population =</span> pop.totals,</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">bounds =</span> <span class="fu">c</span>(<span class="fl">0.5</span>,<span class="fl">1.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The calibration algorithm fails.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Congratulations! 🎉
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You’ve successfully completed these exercises! By now, you should have a solid understanding of survey weighting.</p>
+<p>To keep building your skills, here are a few extra suggesions:</p>
+<ul>
+<li><p><strong>Have a look at the extra exercises</strong>: try out different bounds</p></li>
+<li><p><strong>Apply what you’ve learned</strong>: Try using these models on your own data</p></li>
+<li><p><strong>The Election Challange</strong>: Apply these methods in Day 4, to correct for selection bias</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="acknowledgments" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgments">Acknowledgments</h2>
 <p>Some of the exercises are adapted from:</p>
 <ul>
 <li><p>Valliant, R., Dever, J. A., &amp; Kreuter, F. (2018). <em>Practical tools for designing and weighting survey samples</em> (Vol. 1). New York: Springer.</p></li>
 <li><p><a href="https://www.understandingsociety.ac.uk/help/training/creating-tailored-weights/">Creating Tailored Weights</a> - by Understanding Society</p></li>
 </ul>
-</section>
-</section>
 </section>
 </section>
 
